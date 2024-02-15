@@ -1,0 +1,43 @@
+package com.gradeCalculator.server.Entities;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+
+import java.util.Set;
+
+@Entity
+public class UserEntity {
+    @Id
+    private String username;
+
+    private String password;
+
+    @ManyToMany
+    private Set<SubjectEntity> subjects;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<SubjectEntity> getSubjects() {
+        return subjects;
+    }
+
+    public void setSubjects(Set<SubjectEntity> subjects) {
+        this.subjects = subjects;
+    }
+
+}

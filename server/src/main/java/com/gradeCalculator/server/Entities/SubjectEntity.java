@@ -5,13 +5,12 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
-public class ModuleEntity {
+public class SubjectEntity {
     @Id
     @GeneratedValue
     private Integer id;
 
     private String name;
-
 
     public Integer getId() {
         return id;
@@ -28,6 +27,4 @@ public class ModuleEntity {
     public void setName(String name) {
         this.name = name;
     }
-
-
 }
