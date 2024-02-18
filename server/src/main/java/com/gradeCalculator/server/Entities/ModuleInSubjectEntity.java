@@ -21,6 +21,14 @@ public class ModuleInSubjectEntity {
     //factor that the module grade affects the subject grade at.
     private double gradingFactor;
 
+    public ModuleInSubjectEntity(){};
+
+    public ModuleInSubjectEntity(SubjectEntity subject, ModuleEntity module, double gradingFactor){
+        this.subject=subject;
+        this.module=module;
+        this.gradingFactor=gradingFactor;
+    }
+
     public Integer getId() {
         return id;
     }

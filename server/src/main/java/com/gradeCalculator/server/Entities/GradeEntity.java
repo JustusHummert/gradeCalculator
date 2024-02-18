@@ -1,9 +1,6 @@
 package com.gradeCalculator.server.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
 public class GradeEntity {
@@ -18,6 +15,14 @@ public class GradeEntity {
     private ModuleEntity module;
 
     private double grade;
+
+    public GradeEntity(){}
+
+    public GradeEntity(UserEntity user, ModuleEntity module, double grade){
+        this.user=user;
+        this.module = module;
+        this.grade = grade;
+    }
 
     public Integer getId() {
         return id;

@@ -12,6 +12,12 @@ public class SubjectEntity {
 
     private String name;
 
+    public SubjectEntity(){}
+
+    public SubjectEntity(String name){
+        this.name = name;
+    }
+
     public Integer getId() {
         return id;
     }

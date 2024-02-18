@@ -12,6 +12,11 @@ public class ModuleEntity {
 
     private String name;
 
+    public ModuleEntity(){}
+
+    public ModuleEntity(String name){
+        this.name = name;
+    }
 
     public Integer getId() {
         return id;

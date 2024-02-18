@@ -16,6 +16,13 @@ public class UserEntity {
     @ManyToMany
     private Set<SubjectEntity> subjects;
 
+    public UserEntity(){}
+    public UserEntity(String username, String password){
+        this.username = username;
+        this.password = password;
+    }
+
+
     public String getUsername() {
         return username;
     }
