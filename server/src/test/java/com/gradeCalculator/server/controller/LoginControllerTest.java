@@ -50,6 +50,11 @@ class LoginControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(notNullValue()));
+        //wrong password
+        mvc.perform(MockMvcRequestBuilders.post("/login").param("username", username).param("password", "wrongpassword")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("")));
         userRepository.deleteById(username);
         mvc.perform(MockMvcRequestBuilders.post("/login").param("username", username).param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))

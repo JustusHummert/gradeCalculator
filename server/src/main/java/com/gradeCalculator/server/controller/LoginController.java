@@ -23,10 +23,10 @@ public class LoginController {
     @PostMapping(path="/login")
     public @ResponseBody String login(@RequestParam String username, @RequestParam String password){
         Optional<UserEntity> optional = userRepository.findById(username);
-        UserEntity user;
-        if(optional.isPresent())
-            user = optional.get();
-        else
+        if(optional.isEmpty())
+            return null;
+        UserEntity user = optional.get();
+        if(!password.equals(user.getPassword()))
             return null;
         return SessionManager.getInstance().addSession(user);
     }
