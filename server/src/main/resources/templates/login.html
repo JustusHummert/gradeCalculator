@@ -1,15 +1,59 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Login</title>
 </head>
 <body>
         <h1>Login</h1>
-    <form th:action="@{/login}" method="post">
-        <p>username: <input type="text" th:name="username" /></p>
-        <p>password: <input type="text" th:name="password" /></p>
-        <p><input type="submit" value="Submit" /></p>
-    </form>
+    <form id="loginForm">
+        <p> username <input type="text" id="username" aria-label="username" /></p>
+        <p> password <input type="password" id="password" aria-label="password"/></p>
+        <button type="submit" id="loginBtn">login</button>
+        <button type="submit" id="registerBtn">register</button>
+      </form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+ // disable form
+ $("#loginForm").submit(function (e) {
+        e.preventDefault();
+ }
+ )
+ // create new login handler
+ $("#loginBtn").click(function (e) {
+        e.preventDefault();
+
+        let username = $("#username").val();
+        if (username == "") {
+            $("#username").css("border-color", "red");
+            return;
+        }
+
+        let password = $("#password").val();
+        if (password == ""){
+            $("#username").css("border-color", "red");
+            return;
+        }
+
+        $.ajax({
+          url: "/login",
+          method: "POST",
+          data: {
+            username: username,
+            password: password
+          },
+          dataType: "text",
+        })
+          .done(function (data) {
+            console.info("logged in: ", data);
+          })
+          .fail(function (jqXHR, textStatus, errorThrown) {
+            console.error(jqXHR, textStatus, errorThrown);
+          });
+      });
+
+</script>
 </body>
 </html>
+
