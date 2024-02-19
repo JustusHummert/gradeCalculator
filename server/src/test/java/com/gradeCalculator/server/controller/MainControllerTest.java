@@ -191,4 +191,29 @@ class MainControllerTest {
                 .andExpect(content().string(equalTo("saved")));
     }
 
+    @Test
+    void deleteSubject() throws Exception{
+        mvc.perform(MockMvcRequestBuilders.post("/main/enroll")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("saved")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("there is a user enrolled in this subject")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/unenroll")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("saved")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("saved")));
+
+    }
+
 }

@@ -134,4 +134,22 @@ public class MainController {
         moduleInSubjectRepository.save(moduleInSubjectEntity);
         return "saved";
     }
+
+    @PostMapping(path = "/deleteSubject")
+    public @ResponseBody String deleteSubject(@RequestParam int subjectId, @RequestParam String sessionId){
+        String username = SessionManager.getInstance().getSession(sessionId);
+        if(username == null)
+            return "sessionId invalid";
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return "username invalid";
+        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
+        if (optionalSubject.isEmpty())
+            return "subjectId invalid";
+        SubjectEntity subject = optionalSubject.get();
+        if(userRepository.findBySubjects(subject).iterator().hasNext())
+            return "there is a user enrolled in this subject";
+        subjectRepository.delete(subject);
+        return "saved";
+    }
 }

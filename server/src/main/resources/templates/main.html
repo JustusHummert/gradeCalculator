@@ -38,6 +38,8 @@
                 <td th:text="${subject.name}"></td>
                 <button type="button" id="enrollBtn" class="btn enroll-Subject"
                 th:data-id="${subject.id}">enroll</button>
+                <button type="button" id="deleteSubjectBtn" class="btn delete-Subject"
+                th:data-id="${subject.id}">delete</button>
                 </p>
             </tr>
         </tbody>
@@ -83,7 +85,7 @@ $(".unenroll-Subject").click(function () {
             console.info(data, id, "[[${sessionId}]]");
             if(data=="saved")
                 location.reload();
-            if(data="sessionId invalid")
+            if(data=="sessionId invalid")
                 window.location.href="";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
@@ -106,7 +108,7 @@ $("#addSubjectBtn").click(function () {
             console.info(data, subjectName, "[[${sessionId}]]");
             if(data=="saved")
                location.reload();
-            if(data="sessionId invalid")
+            if(data=="sessionId invalid")
                 window.location.href="";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
@@ -114,6 +116,29 @@ $("#addSubjectBtn").click(function () {
          });
 
 });  
+$(".delete-Subject").click(function () {
+       let id = $(this).data("id");
+       $.ajax({
+         url: "/main/deleteSubject",
+         method: "post",
+         data: {
+            subjectId: id,
+            sessionId: "[[${sessionId}]]"
+         },
+         dataType: "text",
+       })
+         .done(function (data) {
+            console.info(data, id, "[[${sessionId}]]");
+            if(data=="saved")
+               location.reload();
+            if(data=="sessionId invalid")
+                window.location.href="";
+         })
+         .fail(function (jqXHR, textStatus, errorThrown) {
+           console.error(jqXHR, textStatus, errorThrown);
+         });
+
+}); 
 </script>
 </body>
 </html>
