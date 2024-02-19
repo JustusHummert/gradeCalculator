@@ -32,7 +32,7 @@
 
         let password = $("#password").val();
         if (password == ""){
-            $("#username").css("border-color", "red");
+            $("#password").css("border-color", "red");
             return;
         }
 
@@ -47,6 +47,39 @@
         })
           .done(function (data) {
             console.info("logged in: ", data);
+          })
+          .fail(function (jqXHR, textStatus, errorThrown) {
+            console.error(jqXHR, textStatus, errorThrown);
+          });
+      });
+
+  // create new register handler
+ $("#registerBtn").click(function (e) {
+        e.preventDefault();
+
+        let username = $("#username").val();
+        if (username == "") {
+            $("#username").css("border-color", "red");
+            return;
+        }
+
+        let password = $("#password").val();
+        if (password == ""){
+            $("#password").css("border-color", "red");
+            return;
+        }
+
+        $.ajax({
+          url: "/register",
+          method: "POST",
+          data: {
+            username: username,
+            password: password
+          },
+          dataType: "text",
+        })
+          .done(function (data) {
+            console.info("registered: ", data);
           })
           .fail(function (jqXHR, textStatus, errorThrown) {
             console.error(jqXHR, textStatus, errorThrown);
