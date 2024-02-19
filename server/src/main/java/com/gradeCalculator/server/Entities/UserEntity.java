@@ -1,8 +1,6 @@
 package com.gradeCalculator.server.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 
 import java.util.Set;
 
@@ -13,7 +11,7 @@ public class UserEntity {
 
     private String password;
 
-    @ManyToMany
+    @ManyToMany(fetch =  FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<SubjectEntity> subjects;
 
     public UserEntity(){}

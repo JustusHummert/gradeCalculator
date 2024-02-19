@@ -9,15 +9,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class SessionManager {
+    //1 hour = 216000 ms
     private static final int sessionTime = 216000;
     private static SessionManager instance;
     private final SessionIdGenerator generator;
-    private final Map<String, UserEntity> sessions;
+    private final Map<String, String> sessions;
     private final Timer timer;
 
     private SessionManager(){
         generator = new SessionIdGenerator();
-        sessions = new HashMap<String, UserEntity>();
+        sessions = new HashMap<String, String>();
         timer = new Timer();
     }
 
@@ -42,14 +43,14 @@ public class SessionManager {
         );
     }
 
-    public String addSession(UserEntity user){
+    public String addSession(String username){
         String key = generator.nextSessionId();
-        sessions.put(key, user);
+        sessions.put(key, username);
         createSessionTimer(key);
         return key;
     }
 
-    public UserEntity getSession(String key){
+    public String getSession(String key){
         return sessions.get(key);
     }
 

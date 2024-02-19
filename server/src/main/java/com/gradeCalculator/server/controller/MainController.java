@@ -24,74 +24,114 @@ public class MainController {
     private GradeRepository gradeRepository;
     @Autowired
     private ModuleInSubjectRepository moduleInSubjectRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping(path="/addModule")
-    public @ResponseBody boolean addNewModule(@RequestParam String name, @RequestParam String sessionId){
-        UserEntity user = SessionManager.getInstance().getSession(sessionId);
-        if (user==null || name==null)
-            return false;
+    public @ResponseBody String addNewModule(@RequestParam String name, @RequestParam String sessionId){
+        String username = SessionManager.getInstance().getSession(sessionId);
+        if(username == null)
+            return "sessionId invalid";
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return "username invalid";
+        if (name==null)
+            return "no name given";
         ModuleEntity m = new ModuleEntity(name);
         moduleRepository.save(m);
-        return true;
-    }
-
-    @GetMapping(path="/allModules")
-    public @ResponseBody Iterable<ModuleEntity> getAllModules(){
-        return moduleRepository.findAll();
+        return "saved";
     }
 
     @PostMapping(path="/addGrade")
-    public @ResponseBody boolean addNewGrade(@RequestParam int moduleId, @RequestParam double grade, @RequestParam String sessionId){
-        UserEntity user = SessionManager.getInstance().getSession(sessionId);
+    public @ResponseBody String addNewGrade(@RequestParam int moduleId, @RequestParam double grade, @RequestParam String sessionId){
+        String username = SessionManager.getInstance().getSession(sessionId);
+        if(username == null)
+            return "sessionId invalid";
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return "username invalid";
         Optional<ModuleEntity> optionalModule = moduleRepository.findById(moduleId);
-        if (user==null || optionalModule.isEmpty())
-            return false;
+        if (optionalModule.isEmpty())
+            return "moduleId invalid";
         ModuleEntity module = optionalModule.get();
+        UserEntity user = optionalUser.get();
         GradeEntity g = new GradeEntity(user, module, grade);
         gradeRepository.save(g);
-        return true;
-    }
-
-    @PostMapping(path="/yourGrades")
-    public @ResponseBody Iterable<GradeEntity> getYourGrades(@RequestParam String sessionId){
-        UserEntity user = SessionManager.getInstance().getSession(sessionId);
-        if(user==null)
-            return null;
-        return gradeRepository.findByUser(user);
+        return "saved";
     }
 
     @PostMapping(path="/addSubject")
-    public @ResponseBody boolean addNewSubject(@RequestParam String name, @RequestParam String sessionId){
-        UserEntity user = SessionManager.getInstance().getSession(sessionId);
-        if (user==null || name==null)
-            return false;
+    public @ResponseBody String addNewSubject(@RequestParam String name, @RequestParam String sessionId){
+        String username = SessionManager.getInstance().getSession(sessionId);
+        if(username == null)
+            return "sessionId invalid";
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return "username invalid";
+        if (name==null)
+            return "no name given";
         SubjectEntity s = new SubjectEntity(name);
         subjectRepository.save(s);
-        return true;
+        return "saved";
     }
 
-    @GetMapping(path="/allSubjects")
-    public @ResponseBody Iterable<SubjectEntity> getAllSubjects(){
-        return subjectRepository.findAll();
+    @PostMapping(path="/enroll")
+    public @ResponseBody String enroll(@RequestParam int subjectId, @RequestParam String sessionId){
+        String username = SessionManager.getInstance().getSession(sessionId);
+        if(username == null)
+            return "sessionId invalid";
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return "username invalid";
+        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
+        if(optionalSubject.isEmpty())
+            return "subjectId invalid";
+        UserEntity user = optionalUser.get();
+        SubjectEntity subject = optionalSubject.get();
+        if(user.getSubjects().contains(subject))
+            return "already enrolled";
+        user.getSubjects().add(subject);
+        userRepository.save(user);
+        return "saved";
+    }
+
+    @PostMapping(path="/unenroll")
+    public @ResponseBody String unenroll(@RequestParam int subjectId, @RequestParam String sessionId){
+        String username = SessionManager.getInstance().getSession(sessionId);
+        if(username == null)
+            return "sessionId invalid";
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return "username invalid";
+        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
+        if(optionalSubject.isEmpty())
+            return "subjectId invalid";
+        SubjectEntity subject = optionalSubject.get();
+        UserEntity user = optionalUser.get();
+        if(!user.getSubjects().contains(subject))
+            return "user not enrolled";
+        while(user.getSubjects().contains(subject))
+            user.getSubjects().remove(subject);
+        userRepository.save(user);
+        return "saved";
     }
 
     @PostMapping(path = "/addModuleInSubject")
-    public @ResponseBody boolean addNewModuleInSubject(@RequestParam int subjectId, @RequestParam int moduleId, @RequestParam double gradingFactor, @RequestParam String sessionId){
+    public @ResponseBody String addNewModuleInSubject(@RequestParam int subjectId, @RequestParam int moduleId, @RequestParam double gradingFactor, @RequestParam String sessionId){
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         Optional<ModuleEntity> optionalModule = moduleRepository.findById(moduleId);
-        UserEntity user = SessionManager.getInstance().getSession(sessionId);
-        if (user==null || optionalSubject.isEmpty() || optionalModule.isEmpty())
-            return false;
+        String username = SessionManager.getInstance().getSession(sessionId);
+        if(username == null)
+            return "sessionId invalid";
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return "username invalid";
+        if (optionalSubject.isEmpty())
+            return "subjectId invalid";
+        if(optionalModule.isEmpty())
+            return "moduleId invalid";
         ModuleInSubjectEntity moduleInSubjectEntity = new ModuleInSubjectEntity(optionalSubject.get(), optionalModule.get(), gradingFactor);
         moduleInSubjectRepository.save(moduleInSubjectEntity);
-        return true;
+        return "saved";
     }
-
-    @PostMapping(path = "/modulesInSubject")
-    public @ResponseBody Iterable<ModuleInSubjectEntity> getModulesInSubject(@RequestParam int subjectId){
-        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
-        return optionalSubject.map(subject -> moduleInSubjectRepository.findBySubject(subject)).orElse(null);
-    }
-
-
 }

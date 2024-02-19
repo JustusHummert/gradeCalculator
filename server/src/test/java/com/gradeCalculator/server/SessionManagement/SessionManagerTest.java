@@ -17,16 +17,14 @@ class SessionManagerTest {
 
     @Test
     void addSession() {
-        UserEntity user = new UserEntity();
-        String key = SessionManager.getInstance().addSession(user);
-        assertEquals(SessionManager.getInstance().getSession(key), user, "Saved user should be accessible.");
+        String key = SessionManager.getInstance().addSession("username");
+        assertEquals(SessionManager.getInstance().getSession(key), "username", "Saved user should be accessible.");
     }
 
     @Test
     void getSession() {
-        UserEntity user = new UserEntity();
-        String key = SessionManager.getInstance().addSession(user);
-        assertEquals(SessionManager.getInstance().getSession(key), user, "Saved user should be accessible.");
+        String key = SessionManager.getInstance().addSession("username");
+        assertEquals(SessionManager.getInstance().getSession(key), "username", "Saved user should be accessible.");
         assertNull(SessionManager.getInstance().getSession("test"), "there should be no Instance for a random string");
     }
 }

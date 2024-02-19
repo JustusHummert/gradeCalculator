@@ -1,9 +1,8 @@
 package com.gradeCalculator.server.controller;
 
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.hamcrest.Matchers.equalTo;
 
 import com.gradeCalculator.server.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -34,32 +33,32 @@ class LoginControllerTest {
         mvc.perform(MockMvcRequestBuilders.post("/login").param("username", username).param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("")));
+                .andExpect(content().string(equalTo("failed")));
         //register the account
         mvc.perform(MockMvcRequestBuilders.post("/register").param("username", username).param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("true")));
+                .andExpect(content().string(equalTo("saved")));
         //try to register again this time it already exists
         mvc.perform(MockMvcRequestBuilders.post("/register").param("username", username).param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("false")));
+                .andExpect(content().string(equalTo("username already exists")));
         //login successfully
         mvc.perform(MockMvcRequestBuilders.post("/login").param("username", username).param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(notNullValue()));
+                .andExpect(content().string(not("failed")));
         //wrong password
         mvc.perform(MockMvcRequestBuilders.post("/login").param("username", username).param("password", "wrongpassword")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("")));
+                .andExpect(content().string(equalTo("failed")));
         userRepository.deleteById(username);
         mvc.perform(MockMvcRequestBuilders.post("/login").param("username", username).param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("")));
+                .andExpect(content().string(equalTo("failed")));
     }
 
 }

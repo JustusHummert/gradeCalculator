@@ -2,6 +2,7 @@ package com.gradeCalculator.server.Entities;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -16,6 +17,19 @@ public class SubjectEntity {
 
     public SubjectEntity(String name){
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SubjectEntity subject = (SubjectEntity) o;
+        return Objects.equals(getId(), subject.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 
     public Integer getId() {

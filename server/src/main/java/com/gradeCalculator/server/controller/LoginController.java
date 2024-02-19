@@ -24,20 +24,20 @@ public class LoginController {
     public @ResponseBody String login(@RequestParam String username, @RequestParam String password){
         Optional<UserEntity> optional = userRepository.findById(username);
         if(optional.isEmpty())
-            return null;
+            return "failed";
         UserEntity user = optional.get();
         if(!password.equals(user.getPassword()))
-            return null;
-        return SessionManager.getInstance().addSession(user);
+            return "failed";
+        return SessionManager.getInstance().addSession(username);
     }
 
     //Todo add password hashing
     @PostMapping(path="/register")
-    public @ResponseBody boolean register(@RequestParam String username, @RequestParam String password) {
+    public @ResponseBody String register(@RequestParam String username, @RequestParam String password) {
         if (userRepository.findById(username).isPresent())
-            return false;
+            return "username already exists";
         UserEntity user = new UserEntity(username, password);
         userRepository.save(user);
-        return true;
+        return "saved";
     }
 }

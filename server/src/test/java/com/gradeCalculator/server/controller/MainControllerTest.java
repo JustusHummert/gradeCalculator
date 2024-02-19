@@ -4,14 +4,12 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.gradeCalculator.server.Entities.GradeEntity;
 import com.gradeCalculator.server.Entities.ModuleEntity;
 import com.gradeCalculator.server.Entities.SubjectEntity;
 import com.gradeCalculator.server.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cache.support.NullValue;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -19,11 +17,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import com.gradeCalculator.server.Entities.UserEntity;
 import com.gradeCalculator.server.SessionManagement.SessionManager;
 import com.gradeCalculator.server.repositories.*;
-import org.apache.catalina.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
@@ -56,16 +51,16 @@ class MainControllerTest {
         userRepository.save(user);
         moduleRepository.save(setUpModule);
         subjectRepository.save(setUpSubject);
-        sessionId = SessionManager.getInstance().addSession(user);
+        sessionId = SessionManager.getInstance().addSession(user.getUsername());
     }
 
     @AfterEach
     void tearDown() {
         gradeRepository.deleteAll(gradeRepository.findByModule(setUpModule));
         moduleInSubjectRepository.deleteAll(moduleInSubjectRepository.findBySubject(setUpSubject));
+        userRepository.deleteById(SessionManager.getInstance().getSession(sessionId));
         moduleRepository.delete(setUpModule);
         subjectRepository.delete(setUpSubject);
-        userRepository.delete(SessionManager.getInstance().getSession(sessionId));
         moduleRepository.deleteAll(moduleRepository.findByName(tearDownModuleName));
         subjectRepository.deleteAll(subjectRepository.findByName(tearDownSubjectName));
     }
@@ -75,20 +70,12 @@ class MainControllerTest {
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule").param("name", tearDownModuleName).param("sessionId", sessionId)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("true")));
+                .andExpect(content().string(equalTo("saved")));
         assertTrue(moduleRepository.findByName(tearDownModuleName).iterator().hasNext(), "There should be a sessionId with the given name");
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule").param("name", tearDownModuleName).param("sessionId", "fakeSessionId")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("false")));
-    }
-
-    @Test
-    void getAllModules() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/main/allModules")
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(not("")));
+                .andExpect(content().string(equalTo("sessionId invalid")));
     }
 
     @Test
@@ -99,7 +86,7 @@ class MainControllerTest {
                         .param("sessionId", sessionId)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("true")));
+                .andExpect(content().string(equalTo("saved")));
         assertTrue(gradeRepository.findByModule(setUpModule).iterator().hasNext(), "there should be a grade with the given module.");
         mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
                         .param("moduleId", "-1")
@@ -107,27 +94,14 @@ class MainControllerTest {
                         .param("sessionId", sessionId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("false")));
-    }
-
-    @Test
-    void getYourGrades() throws Exception{
-        mvc.perform(MockMvcRequestBuilders.post("/main/yourGrades")
-                .param("sessionId", sessionId)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("[]")));
-        gradeRepository.save(new GradeEntity(SessionManager.getInstance().getSession(sessionId), setUpModule, 4.0));
-        mvc.perform(MockMvcRequestBuilders.post("/main/yourGrades")
-                        .param("sessionId", sessionId)
+                .andExpect(content().string(equalTo("moduleId invalid")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
+                        .param("moduleId", setUpModule.getId().toString())
+                        .param("grade", "1.0")
+                        .param("sessionId", "fake sessionId")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(not("[]")));
-        mvc.perform(MockMvcRequestBuilders.post("/main/yourGrades")
-                        .param("sessionId", "fakeSessionId")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("")));
+                .andExpect(content().string(equalTo("sessionId invalid")));
     }
 
     @Test
@@ -136,20 +110,13 @@ class MainControllerTest {
                 .param("name", tearDownSubjectName)
                 .param("sessionId", sessionId))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("true")));
+                .andExpect(content().string(equalTo("saved")));
         assertTrue(subjectRepository.findByName(tearDownSubjectName).iterator().hasNext(), "There should be an Subject with the given name");
         mvc.perform(MockMvcRequestBuilders.post("/main/addSubject")
                         .param("name", tearDownSubjectName)
                         .param("sessionId", "fakeSessionId"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("false")));
-    }
-
-    @Test
-    void getAllSubjects() throws Exception{
-        mvc.perform(MockMvcRequestBuilders.get("/main/allSubjects"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(not("")));
+                .andExpect(content().string(equalTo("sessionId invalid")));
     }
 
     @Test
@@ -160,7 +127,7 @@ class MainControllerTest {
                 .param("gradingFactor", "0.4")
                 .param("sessionId", sessionId))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("true")));
+                .andExpect(content().string(equalTo("saved")));
         assertTrue(moduleInSubjectRepository.findBySubject(setUpSubject).iterator().hasNext());
         mvc.perform(MockMvcRequestBuilders.post("/main/addModuleInSubject")
                         .param("subjectId", "-1")
@@ -168,18 +135,60 @@ class MainControllerTest {
                         .param("gradingFactor", "0.4")
                         .param("sessionId", sessionId))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("false")));
+                .andExpect(content().string(equalTo("subjectId invalid")));
     }
 
     @Test
-    void getModulesInSubject() throws Exception{
-        mvc.perform(MockMvcRequestBuilders.post("/main/modulesInSubject")
-                .param("subjectId", setUpSubject.getId().toString()))
+    void enroll() throws Exception{
+        mvc.perform(MockMvcRequestBuilders.post("/main/enroll")
+                        .param("subjectId", "-1")
+                        .param("sessionId", sessionId))
                 .andExpect(status().isOk())
-                .andExpect(content().string(not("")));
-        mvc.perform(MockMvcRequestBuilders.post("/main/modulesInSubject")
-                        .param("subjectId", "-1"))
+                .andExpect(content().string(equalTo("subjectId invalid")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/enroll")
+                .param("subjectId", setUpSubject.getId().toString())
+                .param("sessionId", sessionId))
                 .andExpect(status().isOk())
-                .andExpect(content().string(""));
+                .andExpect(content().string(equalTo("saved")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/enroll")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("already enrolled")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/enroll")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", "fake sessionId"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("sessionId invalid")));
     }
+
+    @Test
+    void unenroll() throws Exception{
+        mvc.perform(MockMvcRequestBuilders.post("/main/unenroll")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("user not enrolled")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/unenroll")
+                        .param("subjectId", "-1")
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("subjectId invalid")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/unenroll")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", "fake sessionId"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("sessionId invalid")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/enroll")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("saved")));
+        mvc.perform(MockMvcRequestBuilders.post("/main/unenroll")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("saved")));
+    }
+
 }

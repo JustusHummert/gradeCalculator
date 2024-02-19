@@ -5,6 +5,115 @@
     <title>Main</title>
 </head>
 <body>
-    <p th:text="|SessionId= ${SessionId}|"></p>
+    <div style="float: left; margin-right: 10%">
+    <!-- Enrolled Subjects-->
+    <p>Enrolled Subjects</p>
+    <table id= enrolledTable></table>
+        <tbody>
+            <tr th:each="subject: ${enrolled}">
+                <p>
+                <td th:text="${subject.name}"></td>
+                <button type="button" id="unenrollBtn" class="btn unenroll-Subject"
+                th:data-id="${subject.id}">unenroll</button>
+                <button type="button" id="selectBtn" class="btn select-Subject"
+                th:data-id="${subject.id}">select</button>
+                </p>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+    <div style="float: left;">
+
+    <!-- Subjects-->
+        <p>Subjects</p>
+    <form id="subjectForm">
+        <p><input type="text" id="subjectName" aria-label="subjectName" />
+        <button type="button" id="addSubjectBtn">add</button>
+      </form></p>
+    <table id= subjectTable></table>
+        <tbody>
+            <tr th:each="subject: ${subjects}">
+                <p>
+                <td th:text="${subject.id}"></td>
+                <td th:text="${subject.name}"></td>
+                <button type="button" id="enrollBtn" class="btn enroll-Subject"
+                th:data-id="${subject.id}">enroll</button>
+                </p>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+$(".enroll-Subject").click(function () {
+       let id = $(this).data("id");
+       $.ajax({
+         url: "/main/enroll",
+         method: "post",
+         data: {
+            subjectId: id,
+            sessionId: "[[${sessionId}]]"
+         },
+         dataType: "text",
+       })
+         .done(function (data) {
+            console.info(data, id, "[[${sessionId}]]");
+            if(data=="saved")
+                location.reload();
+            if(data="sessionId invalid")
+                window.location.href="";
+         })
+         .fail(function (jqXHR, textStatus, errorThrown) {
+           console.error(jqXHR, textStatus, errorThrown);
+         });
+
+     });  
+$(".unenroll-Subject").click(function () {
+       let id = $(this).data("id");
+       $.ajax({
+         url: "/main/unenroll",
+         method: "post",
+         data: {
+            subjectId: id,
+            sessionId: "[[${sessionId}]]"
+         },
+         dataType: "text",
+       })
+         .done(function (data) {
+            console.info(data, id, "[[${sessionId}]]");
+            if(data=="saved")
+                location.reload();
+            if(data="sessionId invalid")
+                window.location.href="";
+         })
+         .fail(function (jqXHR, textStatus, errorThrown) {
+           console.error(jqXHR, textStatus, errorThrown);
+         });
+
+     });  
+$("#addSubjectBtn").click(function () {
+       let subjectName = $("#subjectName").val();
+       $.ajax({
+         url: "/main/addSubject",
+         method: "post",
+         data: {
+            name: subjectName,
+            sessionId: "[[${sessionId}]]"
+         },
+         dataType: "text",
+       })
+         .done(function (data) {
+            console.info(data, subjectName, "[[${sessionId}]]");
+            if(data=="saved")
+               location.reload();
+            if(data="sessionId invalid")
+                window.location.href="";
+         })
+         .fail(function (jqXHR, textStatus, errorThrown) {
+           console.error(jqXHR, textStatus, errorThrown);
+         });
+
+});  
+</script>
 </body>
 </html>
