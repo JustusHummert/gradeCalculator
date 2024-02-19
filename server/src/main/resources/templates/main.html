@@ -138,7 +138,12 @@ $(".delete-Subject").click(function () {
            console.error(jqXHR, textStatus, errorThrown);
          });
 
-}); 
+});
+$(".select-Subject").click(function () {
+        let id = $(this).data("id");
+        console.info(id, "[[${sessionId}]]");
+        window.location.href="/main/subject?sessionId="+"[[${sessionId}]]"+"&subjectId="+id;
+});  
 </script>
 </body>
 </html>

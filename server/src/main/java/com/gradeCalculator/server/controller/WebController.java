@@ -1,4 +1,5 @@
 package com.gradeCalculator.server.controller;
+import com.gradeCalculator.server.Entities.SubjectEntity;
 import com.gradeCalculator.server.Entities.UserEntity;
 import com.gradeCalculator.server.SessionManagement.SessionManager;
 import com.gradeCalculator.server.repositories.*;
@@ -42,5 +43,23 @@ public class WebController {
         model.addAttribute("enrolled", user.getSubjects());
         model.addAttribute("subjects", subjectRepository.findAll());
         return "main";
+    }
+
+    @GetMapping("/main/subject")
+    public String subjectMenu(@RequestParam String sessionId, Integer subjectId, Model model){
+        String username = SessionManager.getInstance().getSession(sessionId);
+        if(username == null)
+            return "login";
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return "login";
+        UserEntity user = optionalUser.get();
+        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
+        if(optionalSubject.isEmpty())
+            return "main";
+        SubjectEntity subject = optionalSubject.get();
+        model.addAttribute("sessionId", sessionId);
+        model.addAttribute("subject", subject);
+        return "subject";
     }
 }
