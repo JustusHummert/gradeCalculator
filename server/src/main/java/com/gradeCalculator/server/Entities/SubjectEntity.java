@@ -2,6 +2,7 @@ package com.gradeCalculator.server.Entities;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -13,10 +14,14 @@ public class SubjectEntity {
 
     private String name;
 
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<ModuleEntity> modules;
+
     public SubjectEntity(){}
 
     public SubjectEntity(String name){
         this.name = name;
+        this.modules = new HashSet<ModuleEntity>();
     }
 
     @Override
@@ -46,5 +51,13 @@ public class SubjectEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<ModuleEntity> getModules() {
+        return modules;
+    }
+
+    public void setModules(Set<ModuleEntity> modules) {
+        this.modules = modules;
     }
 }

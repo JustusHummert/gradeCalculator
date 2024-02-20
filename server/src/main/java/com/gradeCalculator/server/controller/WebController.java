@@ -19,10 +19,6 @@ public class WebController {
     @Autowired
     private SubjectRepository subjectRepository;
     @Autowired
-    private GradeRepository gradeRepository;
-    @Autowired
-    private ModuleInSubjectRepository moduleInSubjectRepository;
-    @Autowired
     private UserRepository userRepository;
 
     @GetMapping("")
@@ -40,8 +36,7 @@ public class WebController {
             return "login";
         UserEntity user = optionalUser.get();
         model.addAttribute("sessionId", sessionId);
-        model.addAttribute("enrolled", user.getSubjects());
-        model.addAttribute("subjects", subjectRepository.findAll());
+        model.addAttribute("subjects", user.getSubjects());
         return "main";
     }
 

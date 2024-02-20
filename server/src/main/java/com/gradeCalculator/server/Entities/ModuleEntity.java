@@ -12,10 +12,15 @@ public class ModuleEntity {
 
     private String name;
 
+    private double grade;
+
+    private double gradingFactor;
+
     public ModuleEntity(){}
 
-    public ModuleEntity(String name){
+    public ModuleEntity(String name, double gradingFactor){
         this.name = name;
+        this.gradingFactor = gradingFactor;
     }
 
     public Integer getId() {
@@ -35,4 +40,19 @@ public class ModuleEntity {
     }
 
 
+    public double getGrade() {
+        return grade;
+    }
+
+    public void setGrade(double grade) {
+        this.grade = grade;
+    }
+
+    public double getGradingFactor() {
+        return gradingFactor;
+    }
+
+    public void setGradingFactor(double gradingFactor) {
+        this.gradingFactor = gradingFactor;
+    }
 }

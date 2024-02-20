@@ -2,6 +2,7 @@ package com.gradeCalculator.server.Entities;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -11,13 +12,14 @@ public class UserEntity {
 
     private String password;
 
-    @ManyToMany(fetch =  FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch =  FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<SubjectEntity> subjects;
 
     public UserEntity(){}
     public UserEntity(String username, String password){
         this.username = username;
         this.password = password;
+        this.subjects = new HashSet<SubjectEntity>();
     }
 
 
