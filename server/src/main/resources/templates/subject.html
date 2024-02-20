@@ -2,10 +2,114 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Subject</title>
+    <title th:text="${subject.name}"></title>
 </head>
 <body>
-    <p th:text="|sessionId= ${sessionId}|"></p>
-    <p th:text="|subjectId= ${subject.id}|"></p>
+    <p th:text="${subject.name}"></p>
+    <p th:text="|average Grade= ${averageGrade}|"></p>
+    <p th:text="|best possible Grade= ${bestPossibleGrade}|"></p>
+    <p th:text="|worst possible Grade= ${worstPossibleGrade}|"></p>
+    <!-- Modules-->
+    <p>Modules</p>
+    <p>
+      <form id="moduleForm">
+        <input type="text" id="moduleName" aria-label="moduleName" placeholder="Enter module Name"/>
+        <input type="number" id="gradingFactor" aria-label="gradingFactor" placeholder="Enter gradingFactor" min="0" max="1" step="any"/>
+        <button type="button" id="addModuleBtn">add</button>
+      </form>
+    </p>
+    <table id= moduleTable style="border: 1px solid black;">
+        <tbody>
+            <tr th:each="module: ${subject.modules}" style="border: 1px solid black;">
+                <p>
+                    <td th:text="${module.name}" style="border: 1px solid black;"></td>
+                    <td style="border: 1px solid black;">grade <input type="number" class="grade" th:value="${module.grade}" min="1" max="5" step="0.1" placeholder="none">
+                    <button type="submit" class="btn change-Grade" th:data-id="${module.id}">save</button>
+                    </td>
+                    <td th:text="|gradingFactor ${module.gradingFactor}|" style="border: 1px solid black;"></td>
+                    <td> <button type="button" class="btn delete-Module"
+                    th:data-id="${module.id}" >delete</button></td>
+                </p>
+            </tr>
+        </tbody>
+    </table>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+$("#addModuleBtn").click(function () {
+       let moduleName = $("#moduleName").val();
+       let gradingFactor = $("#gradingFactor").val();
+       $.ajax({
+         url: "/main/addModule",
+         method: "post",
+         data: {
+            name: moduleName,
+            gradingFactor: gradingFactor,
+            subjectId: "[[${subject.id}]]",
+            sessionId: "[[${sessionId}]]"
+         },
+         dataType: "text",
+       })
+         .done(function (data) {
+            console.info(data, moduleName, gradingFactor, "[[${subject.id}]]", "[[${sessionId}]]");
+            if(data=="saved")
+               location.reload();
+            if(data=="sessionId invalid")
+                window.location.href="";
+         })
+         .fail(function (jqXHR, textStatus, errorThrown) {
+           console.error(jqXHR, textStatus, errorThrown);
+         });
+
+});  
+$(".change-Grade").click(function () {
+       let id = $(this).data("id");
+       let grade = $(this).closest("tr").find(".grade").val();
+       $.ajax({
+         url: "/main/addGrade",
+         method: "post",
+         data: {
+            moduleId: id,
+            grade: grade,
+            sessionId: "[[${sessionId}]]"
+         },
+         dataType: "text",
+       })
+         .done(function (data) {
+            console.info(data, id, grade, "[[${sessionId}]]");
+            if(data=="saved")
+               location.reload();
+            if(data=="sessionId invalid")
+                window.location.href="";
+         })
+         .fail(function (jqXHR, textStatus, errorThrown) {
+           console.error(jqXHR, textStatus, errorThrown);
+         });
+
+});
+$(".delete-Module").click(function () {
+       let id = $(this).data("id");
+       $.ajax({
+         url: "/main/deleteModule",
+         method: "post",
+         data: {
+            moduleId: id,
+            subjectId: "[[${subject.id}]]",
+            sessionId: "[[${sessionId}]]"
+         },
+         dataType: "text",
+       })
+         .done(function (data) {
+            console.info(data, id, "[[${subject.id}]]","[[${sessionId}]]");
+            if(data=="saved")
+               location.reload();
+            if(data=="sessionId invalid")
+                window.location.href="";
+         })
+         .fail(function (jqXHR, textStatus, errorThrown) {
+           console.error(jqXHR, textStatus, errorThrown);
+         });
+
+});
+</script>
 </body>
 </html>

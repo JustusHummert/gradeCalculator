@@ -40,6 +40,7 @@ public class MainController {
         ModuleEntity module = new ModuleEntity(name, gradingFactor);
         moduleRepository.save(module);
         subject.getModules().add(module);
+        subjectRepository.save(subject);
         return "saved";
     }
 
@@ -92,7 +93,30 @@ public class MainController {
         UserEntity user = optionalUser.get();
         SubjectEntity subject = optionalSubject.get();
         user.getSubjects().remove(subject);
+        userRepository.save(user);
         subjectRepository.delete(subject);
+        return "saved";
+    }
+
+    @PostMapping(path ="/deleteModule")
+    public @ResponseBody String deleteModule(@RequestParam int moduleId, @RequestParam int subjectId, @RequestParam String sessionId){
+        String username = SessionManager.getInstance().getSession(sessionId);
+        if(username == null)
+            return "sessionId invalid";
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return "username invalid";
+        Optional<ModuleEntity> optionalModule = moduleRepository.findById(moduleId);
+        if(optionalModule.isEmpty())
+            return "moduleId invalid";
+        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
+        if(optionalSubject.isEmpty())
+            return "subjectId invalid";
+        SubjectEntity subject = optionalSubject.get();
+        ModuleEntity module = optionalModule.get();
+        subject.getModules().remove(module);
+        moduleRepository.delete(module);
+        subjectRepository.save(subject);
         return "saved";
     }
 }

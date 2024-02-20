@@ -133,5 +133,14 @@ class MainControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("saved")));
     }
+    @Test
+    void  deleteModule() throws Exception{
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
+                        .param("moduleId", setUpModule.getId().toString())
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("saved")));
+    }
 
 }

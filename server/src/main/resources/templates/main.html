@@ -18,10 +18,10 @@
             <tr th:each="subject: ${subjects}">
               <p>
                 <td th:text="${subject.name}"></td>
-                <button type="button" id="selectBtn" class="btn select-Subject"
-                th:data-id="${subject.id}">select</button>
-                <button type="button" id="deleteSubjectBtn" class="btn delete-Subject"
-                th:data-id="${subject.id}">delete</button>
+                <td><button type="button" id="selectBtn" class="btn select-Subject"
+                th:data-id="${subject.id}">select</button></td>
+                <td><button type="button" id="deleteSubjectBtn" class="btn delete-Subject"
+                th:data-id="${subject.id}">delete</button></td>
               </p>
             </tr>
         </tbody>
