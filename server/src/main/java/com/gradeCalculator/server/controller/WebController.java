@@ -55,11 +55,14 @@ public class WebController {
         if(optionalUser.isEmpty())
             return "login";
         UserEntity user = optionalUser.get();
-        //if the subject doesn´t exist go to subject page
+        //if the subject doesn´t exist go to login page
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         if(optionalSubject.isEmpty())
-            return "main";
+            return "login";
         SubjectEntity subject = optionalSubject.get();
+        //check if user is allowed to access subject
+        if(!user.getSubjects().contains(subject))
+            return "login";
         model.addAttribute("sessionId", sessionId);
         model.addAttribute("subject", subject);
         model.addAttribute("averageGrade", averageGrade(subject));

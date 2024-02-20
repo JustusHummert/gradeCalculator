@@ -36,7 +36,10 @@ public class MainController {
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         if(optionalSubject.isEmpty())
             return "subjectId invalid";
+        UserEntity user = optionalUser.get();
         SubjectEntity subject = optionalSubject.get();
+        if(!user.getSubjects().contains(subject))
+            return "subject doesn´t belong to user";
         ModuleEntity module = new ModuleEntity(name, gradingFactor);
         moduleRepository.save(module);
         subject.getModules().add(module);
@@ -56,6 +59,17 @@ public class MainController {
         if (optionalModule.isEmpty())
             return "moduleId invalid";
         ModuleEntity module = optionalModule.get();
+        UserEntity user = optionalUser.get();
+        //check if Module belongs to user
+        boolean belongs=false;
+        for(SubjectEntity subject : user.getSubjects()){
+            if(subject.getModules().contains(module)){
+                belongs=true;
+                break;
+            }
+        }
+        if(!belongs)
+            return "module doesn´t belong to user";
         module.setGrade(grade);
         moduleRepository.save(module);
         return "saved";
@@ -92,6 +106,8 @@ public class MainController {
             return "subjectId invalid";
         UserEntity user = optionalUser.get();
         SubjectEntity subject = optionalSubject.get();
+        if(!user.getSubjects().contains(subject))
+            return "subject doesn´t belong to user";
         user.getSubjects().remove(subject);
         userRepository.save(user);
         subjectRepository.delete(subject);
@@ -114,6 +130,11 @@ public class MainController {
             return "subjectId invalid";
         SubjectEntity subject = optionalSubject.get();
         ModuleEntity module = optionalModule.get();
+        UserEntity user = optionalUser.get();
+        if(!subject.getModules().contains(module))
+            return "module doesn´t belong to subject";
+        if(!user.getSubjects().contains(subject))
+            return "subject doesn´t belong to module";
         subject.getModules().remove(module);
         moduleRepository.delete(module);
         subjectRepository.save(subject);
