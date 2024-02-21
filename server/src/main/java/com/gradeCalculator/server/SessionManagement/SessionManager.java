@@ -1,8 +1,5 @@
 package com.gradeCalculator.server.SessionManagement;
 
-import com.gradeCalculator.server.Entities.UserEntity;
-
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -18,7 +15,7 @@ public class SessionManager {
 
     private SessionManager(){
         generator = new SessionIdGenerator();
-        sessions = new HashMap<String, String>();
+        sessions = new HashMap<>();
         timer = new Timer();
     }
 

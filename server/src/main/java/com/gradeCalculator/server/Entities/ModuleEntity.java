@@ -2,8 +2,6 @@ package com.gradeCalculator.server.Entities;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
-
 @Entity
 public class ModuleEntity {
     @Id

@@ -22,7 +22,7 @@ public class UserEntity {
         this.username = username;
         this.password = password;
         this.salt = salt;
-        this.subjects = new HashSet<SubjectEntity>();
+        this.subjects = new HashSet<>();
     }
 
 

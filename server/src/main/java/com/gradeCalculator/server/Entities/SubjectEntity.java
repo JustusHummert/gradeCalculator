@@ -21,7 +21,7 @@ public class SubjectEntity {
 
     public SubjectEntity(String name){
         this.name = name;
-        this.modules = new HashSet<ModuleEntity>();
+        this.modules = new HashSet<>();
     }
 
     @Override
