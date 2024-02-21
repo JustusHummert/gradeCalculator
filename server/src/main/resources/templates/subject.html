@@ -39,7 +39,7 @@ $("#addModuleBtn").click(function () {
        let moduleName = $("#moduleName").val();
        let gradingFactor = $("#gradingFactor").val();
        $.ajax({
-         url: "/main/addModule",
+         url: "/gradeCalculator/main/addModule",
          method: "post",
          data: {
             name: moduleName,
@@ -54,7 +54,7 @@ $("#addModuleBtn").click(function () {
             if(data=="saved")
                location.reload();
             if(data=="sessionId invalid")
-                window.location.href="";
+                window.location.href="/gradeCalculator";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
            console.error(jqXHR, textStatus, errorThrown);
@@ -65,7 +65,7 @@ $(".change-Grade").click(function () {
        let id = $(this).data("id");
        let grade = $(this).closest("tr").find(".grade").val();
        $.ajax({
-         url: "/main/addGrade",
+         url: "/gradeCalculator/main/addGrade",
          method: "post",
          data: {
             moduleId: id,
@@ -79,7 +79,7 @@ $(".change-Grade").click(function () {
             if(data=="saved")
                location.reload();
             if(data=="sessionId invalid")
-                window.location.href="";
+                window.location.href="/gradeCalculator";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
            console.error(jqXHR, textStatus, errorThrown);
@@ -89,7 +89,7 @@ $(".change-Grade").click(function () {
 $(".delete-Module").click(function () {
        let id = $(this).data("id");
        $.ajax({
-         url: "/main/deleteModule",
+         url: "/gradeCalculator/main/deleteModule",
          method: "post",
          data: {
             moduleId: id,
@@ -103,7 +103,7 @@ $(".delete-Module").click(function () {
             if(data=="saved")
                location.reload();
             if(data=="sessionId invalid")
-                window.location.href="";
+                window.location.href="/gradeCalculator";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
            console.error(jqXHR, textStatus, errorThrown);
