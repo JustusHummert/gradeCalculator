@@ -11,8 +11,9 @@
         <p> password <input type="password" id="password" aria-label="password"/></p>
         <button type="submit" id="loginBtn">login</button>
         <button type="submit" id="registerBtn">register</button>
-      </form>
-
+    </form>      
+    <div id="hiddenLoginText" style="display: none;">Wrong username or password</div>
+    <div id="hiddenRegisterText" style="display: none;">Username already taken</div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
  // disable form
@@ -47,8 +48,13 @@
         })
           .done(function (data) {
             console.info("logged in:", data);
-            if(data!="failed")
+            var hidden = document.getElementById("hiddenLoginText");
+            if(data!="failed"){
+              hidden.style.display = "none";
               window.location.href ="/main?sessionId=" + data;
+            }
+            else
+              hidden.style.display = "block";
           })
           .fail(function (jqXHR, textStatus, errorThrown) {
             console.error(jqXHR, textStatus, errorThrown);
@@ -82,6 +88,11 @@
         })
           .done(function (data) {
             console.info("registered: ", data);
+            var hidden = document.getElementById("hiddenRegisterText");
+            if(data=="username already exists")
+              hidden.style.display = "block";
+            else
+              hidden.style.display = "none";
           })
           .fail(function (jqXHR, textStatus, errorThrown) {
             console.error(jqXHR, textStatus, errorThrown);
