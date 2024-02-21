@@ -31,7 +31,7 @@
 $("#addSubjectBtn").click(function () {
        let subjectName = $("#subjectName").val();
        $.ajax({
-         url: "/main/addSubject",
+         url: "/gradeCalculator/main/addSubject",
          method: "post",
          data: {
             name: subjectName,
@@ -44,7 +44,7 @@ $("#addSubjectBtn").click(function () {
             if(data=="saved")
                location.reload();
             if(data=="sessionId invalid")
-                window.location.href="";
+                window.location.href="/gradeCalculator";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
            console.error(jqXHR, textStatus, errorThrown);
@@ -54,7 +54,7 @@ $("#addSubjectBtn").click(function () {
 $(".delete-Subject").click(function () {
        let id = $(this).data("id");
        $.ajax({
-         url: "/main/deleteSubject",
+         url: "/gradeCalculator/main/deleteSubject",
          method: "post",
          data: {
             subjectId: id,
@@ -67,7 +67,7 @@ $(".delete-Subject").click(function () {
             if(data=="saved")
                location.reload();
             if(data=="sessionId invalid")
-                window.location.href="";
+                window.location.href="/gradeCalculator";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
            console.error(jqXHR, textStatus, errorThrown);
@@ -77,7 +77,7 @@ $(".delete-Subject").click(function () {
 $(".select-Subject").click(function () {
         let id = $(this).data("id");
         console.info(id, "[[${sessionId}]]");
-        window.location.href="/main/subject?sessionId="+"[[${sessionId}]]"+"&subjectId="+id;
+        window.location.href="/gradeCalculator/main/subject?sessionId="+"[[${sessionId}]]"+"&subjectId="+id;
 });  
 </script>
 </body>
