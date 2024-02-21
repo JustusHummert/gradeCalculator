@@ -41,7 +41,7 @@ class MainControllerTest {
 
     @BeforeEach
     void setUp() {
-        UserEntity user = new UserEntity("user","password");
+        UserEntity user = new UserEntity("user","password", "salt");
         setUpSubject = new SubjectEntity("setUpSubject");
         setUpModule = new ModuleEntity("setUpModule",0.4);
         setUpSubject.getModules().add(setUpModule);

@@ -39,7 +39,7 @@ class WebControllerTest {
 
     @Test
     void mainMenu() throws Exception {
-        UserEntity user = new UserEntity("user","password");
+        UserEntity user = new UserEntity("user","password", "salt");
         userRepository.save(user);
         String sessionId = SessionManager.getInstance().addSession(user.getUsername());
         mvc.perform(MockMvcRequestBuilders.get("/main")
@@ -56,7 +56,7 @@ class WebControllerTest {
 
     @Test
     void subjectMenu() throws Exception{
-        UserEntity user = new UserEntity("user","password");
+        UserEntity user = new UserEntity("user","password", "salt");
         SubjectEntity subject = new SubjectEntity("subject");
         subjectRepository.save(subject);
         user.getSubjects().add(subject);
