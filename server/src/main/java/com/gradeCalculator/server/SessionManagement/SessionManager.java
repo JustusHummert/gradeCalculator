@@ -6,8 +6,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class SessionManager {
-    //1 hour = 216000 ms
-    private static final int sessionTime = 216000;
+    //1 hour = 3600000 ms
+    private static final int sessionTime = 3600000;
     private static SessionManager instance;
     private final SessionIdGenerator generator;
     private final Map<String, String> sessions;
