@@ -38,7 +38,7 @@
         }
 
         $.ajax({
-          url: "/gradeCalculator/login",
+          url: "/login",
           method: "POST",
           data: {
             username: username,
@@ -51,7 +51,7 @@
             var hidden = document.getElementById("hiddenLoginText");
             if(data!="failed"){
               hidden.style.display = "none";
-              window.location.href ="/gradeCalculator/main?sessionId=" + data;
+              window.location.href ="/main?sessionId=" + data;
             }
             else
               hidden.style.display = "block";
@@ -78,7 +78,7 @@
         }
 
         $.ajax({
-          url: "/gradeCalculator/register",
+          url: "/register",
           method: "POST",
           data: {
             username: username,
