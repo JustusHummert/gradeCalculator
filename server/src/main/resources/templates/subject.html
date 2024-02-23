@@ -14,7 +14,7 @@
     <p>
       <form id="moduleForm">
         <input type="text" id="moduleName" aria-label="moduleName" placeholder="Enter module Name"/>
-        <input type="number" id="gradingFactor" aria-label="gradingFactor" placeholder="Enter gradingFactor" min="0" max="1" step="any"/>
+        <input type="text" id="gradingFactor" aria-label="gradingFactor" placeholder="Enter gradingFactor"/>
         <button type="button" id="addModuleBtn">add</button>
       </form>
     </p>
@@ -34,10 +34,19 @@
         </tbody>
     </table>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://unpkg.com/browse/mathjs@12.4.0/"></script>
 <script>
 $("#addModuleBtn").click(function () {
        let moduleName = $("#moduleName").val();
-       let gradingFactor = $("#gradingFactor").val();
+       let inputGradingFactor = $("#gradingFactor").val();
+       let gradingFactor = 0;
+       try{
+         gradingFactor =eval(inputGradingFactor);       
+       } catch(error){
+        console.info("not a valid input")
+        return;
+       }
+
        $.ajax({
          url: "/main/addModule",
          method: "post",
