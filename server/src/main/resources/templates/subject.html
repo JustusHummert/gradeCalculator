@@ -17,6 +17,7 @@
         <input type="text" id="gradingFactor" aria-label="gradingFactor" placeholder="Enter gradingFactor"/>
         <button type="button" id="addModuleBtn">add</button>
       </form>
+      <div id="hiddenModuleText" style="display: none;">the gradingFactor can only consist of numbers and mathematical symbols.</div>
     </p>
     <table id= moduleTable style="border: 1px solid black;">
         <tbody>
@@ -40,12 +41,15 @@ $("#addModuleBtn").click(function () {
        let moduleName = $("#moduleName").val();
        let inputGradingFactor = $("#gradingFactor").val();
        let gradingFactor = 0;
+       var hidden = document.getElementById("hiddenModuleText");
        try{
          gradingFactor =eval(inputGradingFactor);       
        } catch(error){
         console.info("not a valid input")
+        hidden.style.display = "block";
         return;
        }
+       hidden.style.display = "none";
 
        $.ajax({
          url: "/main/addModule",
