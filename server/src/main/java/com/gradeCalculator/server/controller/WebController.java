@@ -30,7 +30,7 @@ public class WebController {
     //directs user to the main.html template
     @GetMapping("/main")
     public String mainMenu(@RequestParam String sessionId, Model model){
-        //if the sessionId is invalid or the username doesn´t exist go to login page
+        //if the sessionId is invalid or the username does not exist go to login page
         String username = SessionManager.getInstance().getSession(sessionId);
         if(username == null)
             return "login";
@@ -54,7 +54,7 @@ public class WebController {
         if(optionalUser.isEmpty())
             return "login";
         UserEntity user = optionalUser.get();
-        //if the subject doesn´t exist go to login page
+        //if the subject does not exist go to login page
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         if(optionalSubject.isEmpty())
             return "login";
