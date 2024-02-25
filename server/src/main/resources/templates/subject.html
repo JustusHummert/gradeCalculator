@@ -40,6 +40,10 @@
 $("#addModuleBtn").click(function () {
        let moduleName = $("#moduleName").val();
        let inputGradingFactor = $("#gradingFactor").val();
+       if(inputGradingFactor==""){
+          $("#gradingFactor").css("border-color", "red");
+          return;
+       }
        let gradingFactor = 0;
        var hidden = document.getElementById("hiddenModuleText");
        try{
