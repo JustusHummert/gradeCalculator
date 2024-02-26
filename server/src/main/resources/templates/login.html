@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
+<html xmlns="http://www.w3.org/1999/html" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Login</title>
@@ -91,8 +91,10 @@
             var hidden = document.getElementById("hiddenRegisterText");
             if(data=="username already exists")
               hidden.style.display = "block";
-            else
+            else{
               hidden.style.display = "none";
+              document.getElementById("loginBtn").click();
+            }
           })
           .fail(function (jqXHR, textStatus, errorThrown) {
             console.error(jqXHR, textStatus, errorThrown);

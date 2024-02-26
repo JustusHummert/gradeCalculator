@@ -34,35 +34,53 @@ class MainControllerTest {
     private MockMvc mvc;
 
     String sessionId;
+    String sessionId2;
+    String sessionIdNoUser;
     ModuleEntity setUpModule;
+    ModuleEntity setUpModule2;
     SubjectEntity setUpSubject;
+    SubjectEntity setUpSubject2;
     String tearDownModuleName = "testModule 42";
     String tearDownSubjectName = "testSubject 17";
 
     @BeforeEach
     void setUp() {
         UserEntity user = new UserEntity("user","password", "salt");
+        UserEntity user2 = new UserEntity("user2", "password", "salt");
         setUpSubject = new SubjectEntity("setUpSubject");
+        setUpSubject2 = new SubjectEntity("setUpSubject2");
         setUpModule = new ModuleEntity("setUpModule",0.4);
+        setUpModule2 = new ModuleEntity("setUpModule2", 0.3);
         setUpSubject.getModules().add(setUpModule);
+        setUpSubject2.getModules().add(setUpModule2);
         user.getSubjects().add(setUpSubject);
+        user2.getSubjects().add(setUpSubject2);
         userRepository.save(user);
+        userRepository.save(user2);
         moduleRepository.save(setUpModule);
+        moduleRepository.save(setUpModule2);
         subjectRepository.save(setUpSubject);
+        subjectRepository.save(setUpSubject2);
         sessionId = SessionManager.getInstance().addSession(user.getUsername());
+        sessionId2 = SessionManager.getInstance().addSession(user2.getUsername());
+        sessionIdNoUser = SessionManager.getInstance().addSession("fake username");
     }
 
     @AfterEach
     void tearDown() {
         userRepository.deleteById(SessionManager.getInstance().getSession(sessionId));
+        userRepository.deleteById(SessionManager.getInstance().getSession(sessionId2));
         subjectRepository.delete(setUpSubject);
+        subjectRepository.delete(setUpSubject2);
         subjectRepository.deleteAll(subjectRepository.findByName(tearDownSubjectName));
         moduleRepository.delete(setUpModule);
+        moduleRepository.delete(setUpModule2);
         moduleRepository.deleteAll(moduleRepository.findByName(tearDownModuleName));
     }
 
     @Test
     void addNewModule() throws Exception {
+        //valid request
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
                         .param("name", tearDownModuleName)
                         .param("sessionId", sessionId)
@@ -71,7 +89,9 @@ class MainControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("saved")));
+        //check if request worked
         assertTrue(moduleRepository.findByName(tearDownModuleName).iterator().hasNext(), "There should be a sessionId with the given name");
+        //request with invalid sessionId
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
                         .param("name", tearDownModuleName)
                         .param("sessionId", "fakeSessionId")
@@ -80,10 +100,38 @@ class MainControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("sessionId invalid")));
+        //request with sessionId saved with invalid username
+        mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
+                        .param("name", tearDownModuleName)
+                        .param("sessionId", sessionIdNoUser)
+                        .param("gradingFactor", "0.5")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("username invalid")));
+        //invalid subjectId
+        mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
+                        .param("name", tearDownModuleName)
+                        .param("sessionId", sessionId)
+                        .param("gradingFactor", "0.5")
+                        .param("subjectId", "-1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("subjectId invalid")));
+        //subject does not belong to user
+        mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
+                        .param("name", tearDownModuleName)
+                        .param("sessionId", sessionId)
+                        .param("gradingFactor", "0.5")
+                        .param("subjectId", setUpSubject2.getId().toString())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("subject does not belong to user")));
     }
 
     @Test
     void addNewGrade() throws Exception{
+        //valid request
         mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
                         .param("moduleId", setUpModule.getId().toString())
                         .param("grade", "1.0")
@@ -91,9 +139,11 @@ class MainControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("saved")));
+        //check if request worked
         //noinspection OptionalGetWithoutIsPresent
         setUpModule = moduleRepository.findById(setUpModule.getId()).get();
         assertEquals(1.0, setUpModule.getGrade(), "The grade of the setupModule should be 1.0");
+        //invalid moduleId
         mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
                         .param("moduleId", "-1")
                         .param("grade", "1.0")
@@ -101,6 +151,7 @@ class MainControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("moduleId invalid")));
+        //invalid sessionId
         mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
                         .param("moduleId", setUpModule.getId().toString())
                         .param("grade", "1.0")
@@ -108,39 +159,136 @@ class MainControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("sessionId invalid")));
+        //sessionId with invalid username
+        mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
+                        .param("moduleId", setUpModule.getId().toString())
+                        .param("grade", "1.0")
+                        .param("sessionId", sessionIdNoUser)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("username invalid")));
+        //module does not belong to user
+        mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
+                        .param("moduleId", setUpModule2.getId().toString())
+                        .param("grade", "1.0")
+                        .param("sessionId", sessionId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("module does not belong to user")));
     }
 
     @Test
     void addNewSubject() throws Exception{
+        //valid request
         mvc.perform(MockMvcRequestBuilders.post("/main/addSubject")
                 .param("name", tearDownSubjectName)
                 .param("sessionId", sessionId))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("saved")));
+        //check if request worked
         assertTrue(subjectRepository.findByName(tearDownSubjectName).iterator().hasNext(), "There should be an Subject with the given name");
+        //invalid sessionId
         mvc.perform(MockMvcRequestBuilders.post("/main/addSubject")
                         .param("name", tearDownSubjectName)
                         .param("sessionId", "fakeSessionId"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("sessionId invalid")));
+        //sessionId with invalid username
+        mvc.perform(MockMvcRequestBuilders.post("/main/addSubject")
+                        .param("name", tearDownSubjectName)
+                        .param("sessionId", sessionIdNoUser))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("username invalid")));
     }
 
     @Test
     void deleteSubject() throws Exception{
+        //valid request
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
                         .param("subjectId", setUpSubject.getId().toString())
                         .param("sessionId", sessionId))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("saved")));
+        //check if request worked
+        assertFalse(subjectRepository.findById((setUpSubject.getId())).isPresent(), "Subject should have been deleted");
+        //invalid sessionId
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", "fake sessionId"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("sessionId invalid")));
+        //session with invalid username
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionIdNoUser))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("username invalid")));
+        //invalid subjectId
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
+                        .param("subjectId", "-1")
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("subjectId invalid")));
+        //subject does not belong to user
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
+                        .param("subjectId", setUpSubject2.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("subject does not belong to user")));
     }
     @Test
     void  deleteModule() throws Exception{
+        //invalid sessionId
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
+                        .param("moduleId", setUpModule.getId().toString())
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", "fake Session Id"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("sessionId invalid")));
+        //sessionId with invalid username
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
+                        .param("moduleId", setUpModule.getId().toString())
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionIdNoUser))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("username invalid")));
+        //moduleId invalid
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
+                        .param("moduleId", "-1")
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("moduleId invalid")));
+        //subjectId invalid
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
+                        .param("moduleId", setUpModule.getId().toString())
+                        .param("subjectId", "-1")
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("subjectId invalid")));
+        //module not in subject
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
+                        .param("moduleId", setUpModule2.getId().toString())
+                        .param("subjectId", setUpSubject.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("module does not belong to subject")));
+        //subject not in user
+        mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
+                        .param("moduleId", setUpModule2.getId().toString())
+                        .param("subjectId", setUpSubject2.getId().toString())
+                        .param("sessionId", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("subject does not belong to user")));
+        //valid request
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", setUpModule.getId().toString())
                         .param("subjectId", setUpSubject.getId().toString())
                         .param("sessionId", sessionId))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("saved")));
+        //check if request worked
+        assertFalse(moduleRepository.findById(setUpModule.getId()).isPresent());
     }
 
 }
