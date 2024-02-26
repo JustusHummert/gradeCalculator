@@ -150,10 +150,13 @@ item.addEventListener("keypress", function(event){
 //show fractions as fractions
 document.querySelectorAll(".gradingFactorText").forEach((item)=> {
   let value = parseFloat(item.textContent);
+  console.info(value);
   for(let i=2; i<10000; i++){
       let numerator = value*i;
-      if(Number.isInteger(numerator)){
-        item.textContent=numerator+"/"+i;
+      let nearestInteger = Math.round(numerator);
+      let difference = Math.abs(numerator-nearestInteger);
+      if(nearestInteger!==0 && difference < 0.1**10){
+        item.textContent=nearestInteger+"/"+i;
         break;    
     }
   }
