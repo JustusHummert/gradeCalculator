@@ -77,9 +77,6 @@ class WebControllerTest {
 
     @Test
     void subjectMenu() throws Exception{
-        userRepository.deleteAll();
-        subjectRepository.deleteAll();
-        moduleRepository.deleteAll();
         UserEntity user = new UserEntity("user","password");
         SubjectEntity subject = new SubjectEntity("subject");
         ModuleEntity module = new ModuleEntity("module", 0.5);

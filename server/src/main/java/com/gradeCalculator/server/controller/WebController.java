@@ -63,8 +63,6 @@ public class WebController {
             return "login";
         SubjectEntity subject = optionalSubject.get();
         //check if user is allowed to access subject
-        System.out.println(user.getSubjects());
-        System.out.println(user.getUsername());
         if(!user.getSubjects().contains(subject))
             return "login";
         model.addAttribute("subject", subject);
