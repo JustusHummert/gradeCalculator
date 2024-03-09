@@ -12,16 +12,13 @@ public class UserEntity {
 
     private String password;
 
-    private String salt;
-
     @OneToMany(fetch =  FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<SubjectEntity> subjects;
 
     public UserEntity(){}
-    public UserEntity(String username, String password, String salt){
+    public UserEntity(String username, String password){
         this.username = username;
         this.password = password;
-        this.salt = salt;
         this.subjects = new HashSet<>();
     }
 
@@ -48,13 +45,5 @@ public class UserEntity {
 
     public void setSubjects(Set<SubjectEntity> subjects) {
         this.subjects = subjects;
-    }
-
-    public String getSalt() {
-        return salt;
-    }
-
-    public void setSalt(String salt) {
-        this.salt = salt;
     }
 }

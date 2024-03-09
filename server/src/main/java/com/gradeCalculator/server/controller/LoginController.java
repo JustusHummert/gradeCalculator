@@ -27,8 +27,7 @@ public class LoginController {
         if(optional.isEmpty())
             return "failed";
         UserEntity user = optional.get();
-        String hashedPassword = BCrypt.hashpw(password, user.getSalt());
-        if(!hashedPassword.equals(user.getPassword()))
+        if(!BCrypt.checkpw(password, user.getPassword()))
             return "failed";
         request.getSession().setAttribute("username", username);
         return "logged in";
@@ -39,9 +38,8 @@ public class LoginController {
     public @ResponseBody String register(@RequestParam String username, @RequestParam String password) {
         if (userRepository.findById(username).isPresent())
             return "username already exists";
-        String salt = BCrypt.gensalt();
-        String hashedPassword = BCrypt.hashpw(password, salt);
-        UserEntity user = new UserEntity(username, hashedPassword, salt);
+        String hashedPassword = BCrypt.hashpw(password,  BCrypt.gensalt());
+        UserEntity user = new UserEntity(username, hashedPassword);
         userRepository.save(user);
         return "saved";
     }

@@ -48,7 +48,7 @@ class WebControllerTest {
 
     @Test
     void mainMenu() throws Exception {
-        UserEntity user = new UserEntity("user","password", "salt");
+        UserEntity user = new UserEntity("user","password");
         userRepository.save(user);
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("username", user.getUsername());
@@ -80,7 +80,7 @@ class WebControllerTest {
         userRepository.deleteAll();
         subjectRepository.deleteAll();
         moduleRepository.deleteAll();
-        UserEntity user = new UserEntity("user","password", "salt");
+        UserEntity user = new UserEntity("user","password");
         SubjectEntity subject = new SubjectEntity("subject");
         ModuleEntity module = new ModuleEntity("module", 0.5);
         module.setGrade(1.3);
@@ -118,7 +118,7 @@ class WebControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(loginHtmlString)));
-        UserEntity user2 = new UserEntity("user2", "password", "salt");
+        UserEntity user2 = new UserEntity("user2", "password");
         userRepository.save(user2);
         MockHttpSession session2 = new MockHttpSession();
         session2.setAttribute("username", user2.getUsername());
