@@ -30,6 +30,8 @@ public class LoginController {
         if(!BCrypt.checkpw(password, user.getPassword()))
             return "failed";
         request.getSession().setAttribute("username", username);
+        //set an expiration time for the session 1 hour
+        request.getSession().setMaxInactiveInterval(60*60);
         return "logged in";
     }
 
