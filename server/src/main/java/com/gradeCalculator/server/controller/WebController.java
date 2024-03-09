@@ -2,12 +2,13 @@ package com.gradeCalculator.server.controller;
 import com.gradeCalculator.server.Entities.ModuleEntity;
 import com.gradeCalculator.server.Entities.SubjectEntity;
 import com.gradeCalculator.server.Entities.UserEntity;
-import com.gradeCalculator.server.SessionManagement.SessionManager;
 import com.gradeCalculator.server.repositories.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
@@ -21,6 +22,19 @@ public class WebController {
     @Autowired
     private UserRepository userRepository;
 
+    //sets the user
+    @ModelAttribute("user")
+    public UserEntity getUser(HttpServletRequest request){
+        Object usernameObject = request.getSession().getAttribute("username");
+        if(usernameObject == null)
+            return null;
+        String username =  usernameObject.toString();
+        Optional<UserEntity> optionalUser = userRepository.findById(username);
+        if(optionalUser.isEmpty())
+            return null;
+        return optionalUser.get();
+    }
+
     //directs user to the login.html template
     @GetMapping("")
     public String login(){
@@ -29,40 +43,30 @@ public class WebController {
 
     //directs user to the main.html template
     @GetMapping("/main")
-    public String mainMenu(@RequestParam String sessionId, Model model){
-        //if the sessionId is invalid or the username does not exist go to login page
-        String username = SessionManager.getInstance().getSession(sessionId);
-        if(username == null)
+    public String mainMenu(@ModelAttribute("user") UserEntity user, Model model){
+        //if the session is invalid or the username does not exist go to login page
+        if(user == null)
             return "login";
-        Optional<UserEntity> optionalUser = userRepository.findById(username);
-        if(optionalUser.isEmpty())
-            return "login";
-        UserEntity user = optionalUser.get();
-        model.addAttribute("sessionId", sessionId);
         model.addAttribute("subjects", user.getSubjects());
         return "main";
     }
 
     //Directs user to the subject.html template
     @GetMapping("/main/subject")
-    public String subjectMenu(@RequestParam String sessionId, Integer subjectId, Model model){
-        //if the sessionId is invalid or the username doesn´t exist go to login page
-        String username = SessionManager.getInstance().getSession(sessionId);
-        if(username == null)
+    public String subjectMenu(@ModelAttribute("user") UserEntity user, @RequestParam int subjectId, Model model, HttpServletRequest request){
+        //if the session is invalid or the username does not exist go to login page
+        if(user == null)
             return "login";
-        Optional<UserEntity> optionalUser = userRepository.findById(username);
-        if(optionalUser.isEmpty())
-            return "login";
-        UserEntity user = optionalUser.get();
         //if the subject does not exist go to login page
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         if(optionalSubject.isEmpty())
             return "login";
         SubjectEntity subject = optionalSubject.get();
         //check if user is allowed to access subject
+        System.out.println(user.getSubjects());
+        System.out.println(user.getUsername());
         if(!user.getSubjects().contains(subject))
             return "login";
-        model.addAttribute("sessionId", sessionId);
         model.addAttribute("subject", subject);
         model.addAttribute("averageGrade", averageGrade(subject));
         model.addAttribute("bestPossibleGrade", bestPossibleGrade(subject));

@@ -1,8 +1,8 @@
 package com.gradeCalculator.server.controller;
 
 import com.gradeCalculator.server.Entities.UserEntity;
-import com.gradeCalculator.server.SessionManagement.SessionManager;
 import com.gradeCalculator.server.repositories.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +22,7 @@ public class LoginController {
 
     //check if username and password combination exists, return SessionId
     @PostMapping(path="/login")
-    public @ResponseBody String login(@RequestParam String username, @RequestParam String password){
+    public @ResponseBody String login(@RequestParam String username, @RequestParam String password, HttpServletRequest request){
         Optional<UserEntity> optional = userRepository.findById(username);
         if(optional.isEmpty())
             return "failed";
@@ -30,7 +30,8 @@ public class LoginController {
         String hashedPassword = BCrypt.hashpw(password, user.getSalt());
         if(!hashedPassword.equals(user.getPassword()))
             return "failed";
-        return SessionManager.getInstance().addSession(username);
+        request.getSession().setAttribute("username", username);
+        return "logged in";
     }
 
     //create user, hash password

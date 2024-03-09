@@ -5,27 +5,19 @@ import static org.hamcrest.Matchers.*;
 import com.gradeCalculator.server.Entities.ModuleEntity;
 import com.gradeCalculator.server.Entities.SubjectEntity;
 import com.gradeCalculator.server.Entities.UserEntity;
-import com.gradeCalculator.server.SessionManagement.SessionManager;
 import com.gradeCalculator.server.repositories.ModuleRepository;
 import com.gradeCalculator.server.repositories.SubjectRepository;
 import com.gradeCalculator.server.repositories.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-
-import org.springframework.ui.Model;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -58,27 +50,26 @@ class WebControllerTest {
     void mainMenu() throws Exception {
         UserEntity user = new UserEntity("user","password", "salt");
         userRepository.save(user);
-        String sessionId = SessionManager.getInstance().addSession(user.getUsername());
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("username", user.getUsername());
         //valid request
         mvc.perform(MockMvcRequestBuilders.get("/main")
-                        .param("sessionId", sessionId)
+                        .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(notNullValue()))
-                .andExpect(model().attributeExists("sessionId"))
                 .andExpect(model().attributeExists("subjects"))
-                .andExpect(model().attribute("sessionId", sessionId))
                 .andExpect(model().attribute("subjects", user.getSubjects()));
         userRepository.delete(user);
         //invalid sessionId
         mvc.perform(MockMvcRequestBuilders.get("/main")
-                        .param("sessionId", "fake SessionId")
+                        .session(new MockHttpSession())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(loginHtmlString)));
         //sessionId not connected to user
         mvc.perform(MockMvcRequestBuilders.get("/main")
-                        .param("sessionId", sessionId)
+                        .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(loginHtmlString)));
@@ -86,6 +77,9 @@ class WebControllerTest {
 
     @Test
     void subjectMenu() throws Exception{
+        userRepository.deleteAll();
+        subjectRepository.deleteAll();
+        moduleRepository.deleteAll();
         UserEntity user = new UserEntity("user","password", "salt");
         SubjectEntity subject = new SubjectEntity("subject");
         ModuleEntity module = new ModuleEntity("module", 0.5);
@@ -93,41 +87,45 @@ class WebControllerTest {
         subject.getModules().add(module);
         user.getSubjects().add(subject);
         userRepository.save(user);
-        subjectRepository.save(subject);
         moduleRepository.save(module);
-        String sessionId = SessionManager.getInstance().addSession(user.getUsername());
+        subjectRepository.save(subject);
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("username", user.getUsername());
+        System.out.println("test:" +user.getSubjects());
+        System.out.println("test2:" +userRepository.findById(user.getUsername()).get().getSubjects());
         //valid request
         mvc.perform(MockMvcRequestBuilders.get("/main/subject")
-                        .param("sessionId", sessionId)
                         .param("subjectId", subject.getId().toString())
+                        .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(notNullValue()))
-                .andExpect(model().attribute("sessionId", sessionId))
                 .andExpect(model().attribute("subject", subject))
                 .andExpect(model().attribute("averageGrade", 1.3))
                 .andExpect(model().attribute("bestPossibleGrade", 1.15))
                 .andExpect(model().attribute("worstPossibleGrade", 2.65));
         //invalid sessionId
         mvc.perform(MockMvcRequestBuilders.get("/main/subject")
-                        .param("sessionId", "fake sessionId")
                         .param("subjectId", subject.getId().toString())
+                        .session(new MockHttpSession())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(loginHtmlString)));
         //subject does not exist
         mvc.perform(MockMvcRequestBuilders.get("/main/subject")
-                        .param("sessionId", sessionId)
                         .param("subjectId", "-1")
+                        .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(loginHtmlString)));
         UserEntity user2 = new UserEntity("user2", "password", "salt");
         userRepository.save(user2);
+        MockHttpSession session2 = new MockHttpSession();
+        session2.setAttribute("username", user2.getUsername());
         //user not allowed to access subject
         mvc.perform(MockMvcRequestBuilders.get("/main/subject")
-                        .param("sessionId", SessionManager.getInstance().addSession(user2.getUsername()))
                         .param("subjectId", subject.getId().toString())
+                        .session(session2)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(loginHtmlString)));
@@ -135,8 +133,8 @@ class WebControllerTest {
         userRepository.delete(user);
         //sessionId not connected to valid user
         mvc.perform(MockMvcRequestBuilders.get("/main/subject")
-                        .param("sessionId", sessionId)
                         .param("subjectId", subject.getId().toString())
+                        .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(loginHtmlString)));

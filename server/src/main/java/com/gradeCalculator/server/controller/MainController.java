@@ -1,14 +1,11 @@
 package com.gradeCalculator.server.controller;
 
 import com.gradeCalculator.server.Entities.*;
-import com.gradeCalculator.server.SessionManagement.SessionManager;
 import com.gradeCalculator.server.repositories.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -22,18 +19,26 @@ public class MainController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping(path="/addModule")
-    public @ResponseBody String addNewModule(@RequestParam String name, @RequestParam double gradingFactor, @RequestParam int subjectId, @RequestParam String sessionId){
-        String username = SessionManager.getInstance().getSession(sessionId);
-        if(username == null)
-            return "sessionId invalid";
+    //sets the user
+    @ModelAttribute("user")
+    public UserEntity getUser(HttpServletRequest request){
+        Object usernameObject = request.getSession().getAttribute("username");
+        if(usernameObject == null)
+            return null;
+        String username =  usernameObject.toString();
         Optional<UserEntity> optionalUser = userRepository.findById(username);
         if(optionalUser.isEmpty())
-            return "username invalid";
+            return null;
+        return optionalUser.get();
+    }
+
+    @PostMapping(path="/addModule")
+    public @ResponseBody String addNewModule(@ModelAttribute("user") UserEntity user,@RequestParam String name, @RequestParam double gradingFactor, @RequestParam int subjectId){
+        if(user == null)
+            return "session invalid";
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         if(optionalSubject.isEmpty())
             return "subjectId invalid";
-        UserEntity user = optionalUser.get();
         SubjectEntity subject = optionalSubject.get();
         if(!user.getSubjects().contains(subject))
             return "subject does not belong to user";
@@ -45,18 +50,13 @@ public class MainController {
     }
 
     @PostMapping(path="/addGrade")
-    public @ResponseBody String addNewGrade(@RequestParam int moduleId, @RequestParam double grade, @RequestParam String sessionId){
-        String username = SessionManager.getInstance().getSession(sessionId);
-        if(username == null)
-            return "sessionId invalid";
-        Optional<UserEntity> optionalUser = userRepository.findById(username);
-        if(optionalUser.isEmpty())
-            return "username invalid";
+    public @ResponseBody String addNewGrade(@ModelAttribute("user") UserEntity user, @RequestParam int moduleId, @RequestParam double grade){
+        if(user == null)
+            return "session invalid";
         Optional<ModuleEntity> optionalModule = moduleRepository.findById(moduleId);
         if (optionalModule.isEmpty())
             return "moduleId invalid";
         ModuleEntity module = optionalModule.get();
-        UserEntity user = optionalUser.get();
         //check if Module belongs to user
         boolean belongs=false;
         for(SubjectEntity subject : user.getSubjects()){
@@ -73,14 +73,9 @@ public class MainController {
     }
 
     @PostMapping(path="/addSubject")
-    public @ResponseBody String addNewSubject(@RequestParam String name, @RequestParam String sessionId){
-        String username = SessionManager.getInstance().getSession(sessionId);
-        if(username == null)
-            return "sessionId invalid";
-        Optional<UserEntity> optionalUser = userRepository.findById(username);
-        if(optionalUser.isEmpty())
-            return "username invalid";
-        UserEntity user = optionalUser.get();
+    public @ResponseBody String addNewSubject(@ModelAttribute("user") UserEntity user, @RequestParam String name){
+        if(user == null)
+            return "session invalid";
         SubjectEntity subject = new SubjectEntity(name);
         subjectRepository.save(subject);
         user.getSubjects().add(subject);
@@ -89,17 +84,12 @@ public class MainController {
     }
 
     @PostMapping(path = "/deleteSubject")
-    public @ResponseBody String deleteSubject(@RequestParam int subjectId, @RequestParam String sessionId){
-        String username = SessionManager.getInstance().getSession(sessionId);
-        if(username == null)
-            return "sessionId invalid";
-        Optional<UserEntity> optionalUser = userRepository.findById(username);
-        if(optionalUser.isEmpty())
-            return "username invalid";
+    public @ResponseBody String deleteSubject(@ModelAttribute("user") UserEntity user, @RequestParam int subjectId){
+        if(user == null)
+            return "session invalid";
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         if (optionalSubject.isEmpty())
             return "subjectId invalid";
-        UserEntity user = optionalUser.get();
         SubjectEntity subject = optionalSubject.get();
         if(!user.getSubjects().contains(subject))
             return "subject does not belong to user";
@@ -110,13 +100,9 @@ public class MainController {
     }
 
     @PostMapping(path ="/deleteModule")
-    public @ResponseBody String deleteModule(@RequestParam int moduleId, @RequestParam int subjectId, @RequestParam String sessionId){
-        String username = SessionManager.getInstance().getSession(sessionId);
-        if(username == null)
-            return "sessionId invalid";
-        Optional<UserEntity> optionalUser = userRepository.findById(username);
-        if(optionalUser.isEmpty())
-            return "username invalid";
+    public @ResponseBody String deleteModule(@ModelAttribute("user") UserEntity user, @RequestParam int moduleId, @RequestParam int subjectId){
+        if(user == null)
+            return "session invalid";
         Optional<ModuleEntity> optionalModule = moduleRepository.findById(moduleId);
         if(optionalModule.isEmpty())
             return "moduleId invalid";
@@ -125,7 +111,6 @@ public class MainController {
             return "subjectId invalid";
         SubjectEntity subject = optionalSubject.get();
         ModuleEntity module = optionalModule.get();
-        UserEntity user = optionalUser.get();
         if(!subject.getModules().contains(module))
             return "module does not belong to subject";
         if(!user.getSubjects().contains(subject))
