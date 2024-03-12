@@ -9,8 +9,8 @@
     <form id="loginForm">
         <p> username <input type="text" id="username" aria-label="username" /></p>
         <p> password <input type="password" id="password" aria-label="password"/></p>
-        <button type="submit" id="loginBtn">login</button>
-        <button type="submit" id="registerBtn">register</button>
+        <button type="button" id="loginBtn">login</button>
+        <button type="button" id="registerBtn">register</button>
     </form>      
     <div id="hiddenLoginText" style="display: none;">Wrong username or password</div>
     <div id="hiddenRegisterText" style="display: none;">Username already taken</div>
@@ -51,7 +51,7 @@
             var hidden = document.getElementById("hiddenLoginText");
             if(data!="failed"){
               hidden.style.display = "none";
-              window.location.href ="/main?sessionId=" + data;
+              window.location.href ="/main";
             }
             else
               hidden.style.display = "block";
@@ -89,8 +89,10 @@
           .done(function (data) {
             console.info("registered: ", data);
             var hidden = document.getElementById("hiddenRegisterText");
-            if(data=="username already exists")
+            if(data=="username already exists"){
               hidden.style.display = "block";
+              document.getElementById("username").focus();
+            }
             else{
               hidden.style.display = "none";
               document.getElementById("loginBtn").click();
@@ -100,6 +102,24 @@
             console.error(jqXHR, textStatus, errorThrown);
           });
       });
+
+//focus first input field
+document.getElementById("username").focus();
+
+//make button react to Enter
+document.getElementById("password").addEventListener("keypress", function(event){
+  if(event.key === "Enter") {
+    event.preventDefault();
+    document.getElementById("loginBtn").click();
+  }
+});
+
+document.getElementById("username").addEventListener("keypress", function(event){
+    if(event.key == "Enter"){
+        event.preventDefault();
+        document.getElementById("password").focus();
+    }
+});
 
 </script>
 </body>

@@ -96,15 +96,14 @@ $("#addModuleBtn").click(function () {
             name: moduleName,
             gradingFactor: gradingFactor,
             subjectId: "[[${subject.id}]]",
-            sessionId: "[[${sessionId}]]"
          },
          dataType: "text",
        })
          .done(function (data) {
-            console.info(data, moduleName, gradingFactor, "[[${subject.id}]]", "[[${sessionId}]]");
+            console.info(data, moduleName, gradingFactor, "[[${subject.id}]]");
             if(data=="saved")
                location.reload();
-            if(data=="sessionId invalid")
+            if(data=="session invalid")
                 window.location.href="";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
@@ -122,15 +121,14 @@ $(".change-Grade").click(function () {
          data: {
             moduleId: id,
             grade: grade,
-            sessionId: "[[${sessionId}]]"
          },
          dataType: "text",
        })
          .done(function (data) {
-            console.info(data, id, grade, "[[${sessionId}]]");
+            console.info(data, id, grade);
             if(data=="saved")
                location.reload();
-            if(data=="sessionId invalid")
+            if(data=="session invalid")
                 window.location.href="";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
@@ -146,15 +144,14 @@ $(".delete-Module").click(function () {
          data: {
             moduleId: id,
             subjectId: "[[${subject.id}]]",
-            sessionId: "[[${sessionId}]]"
          },
          dataType: "text",
        })
          .done(function (data) {
-            console.info(data, id, "[[${subject.id}]]","[[${sessionId}]]");
+            console.info(data, id, "[[${subject.id}]]");
             if(data=="saved")
                location.reload();
-            if(data=="sessionId invalid")
+            if(data=="session invalid")
                 window.location.href="";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
@@ -168,6 +165,13 @@ document.getElementById("gradingFactor").addEventListener("keypress", function(e
   if(event.key === "Enter") {
     event.preventDefault();
     document.getElementById("addModuleBtn").click();
+  }
+});
+
+document.getElementById("moduleName").addEventListener("keypress", function(event){
+  if(event.key === "Enter") {
+    event.preventDefault();
+    document.getElementById("gradingFactor").focus();
   }
 });
 
