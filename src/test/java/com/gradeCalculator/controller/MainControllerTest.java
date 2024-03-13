@@ -1,12 +1,14 @@
-package com.gradeCalculator.server.controller;
+package com.gradeCalculator.controller;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.gradeCalculator.server.Entities.ModuleEntity;
-import com.gradeCalculator.server.Entities.SubjectEntity;
-import com.gradeCalculator.server.repositories.UserRepository;
+import com.gradeCalculator.Entities.ModuleEntity;
+import com.gradeCalculator.Entities.SubjectEntity;
+import com.gradeCalculator.repositories.ModuleRepository;
+import com.gradeCalculator.repositories.SubjectRepository;
+import com.gradeCalculator.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +17,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import com.gradeCalculator.server.Entities.UserEntity;
+import com.gradeCalculator.Entities.UserEntity;
 import com.gradeCalculator.server.repositories.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

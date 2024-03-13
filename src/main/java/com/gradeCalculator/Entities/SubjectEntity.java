@@ -1,4 +1,4 @@
-package com.gradeCalculator.server.Entities;
+package com.gradeCalculator.Entities;
 
 import jakarta.persistence.*;
 

@@ -1,6 +1,6 @@
-package com.gradeCalculator.server.repositories;
+package com.gradeCalculator.repositories;
 
-import com.gradeCalculator.server.Entities.SubjectEntity;
+import com.gradeCalculator.Entities.SubjectEntity;
 import org.springframework.data.repository.CrudRepository;
 
 public interface SubjectRepository extends CrudRepository<SubjectEntity, Integer> {
