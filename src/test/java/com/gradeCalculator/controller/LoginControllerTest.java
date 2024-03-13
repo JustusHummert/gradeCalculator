@@ -1,10 +1,10 @@
-package com.gradeCalculator.server.controller;
+package com.gradeCalculator.controller;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.gradeCalculator.server.repositories.UserRepository;
+import com.gradeCalculator.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

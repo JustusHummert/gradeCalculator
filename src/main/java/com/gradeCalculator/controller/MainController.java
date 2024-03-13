@@ -1,7 +1,11 @@
-package com.gradeCalculator.server.controller;
+package com.gradeCalculator.controller;
 
-import com.gradeCalculator.server.Entities.*;
-import com.gradeCalculator.server.repositories.*;
+import com.gradeCalculator.Entities.ModuleEntity;
+import com.gradeCalculator.Entities.SubjectEntity;
+import com.gradeCalculator.Entities.UserEntity;
+import com.gradeCalculator.repositories.ModuleRepository;
+import com.gradeCalculator.repositories.SubjectRepository;
+import com.gradeCalculator.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

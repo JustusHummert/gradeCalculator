@@ -1,13 +1,13 @@
-package com.gradeCalculator.server.controller;
+package com.gradeCalculator.controller;
 
 import static org.hamcrest.Matchers.*;
 
-import com.gradeCalculator.server.Entities.ModuleEntity;
-import com.gradeCalculator.server.Entities.SubjectEntity;
-import com.gradeCalculator.server.Entities.UserEntity;
-import com.gradeCalculator.server.repositories.ModuleRepository;
-import com.gradeCalculator.server.repositories.SubjectRepository;
-import com.gradeCalculator.server.repositories.UserRepository;
+import com.gradeCalculator.Entities.ModuleEntity;
+import com.gradeCalculator.Entities.SubjectEntity;
+import com.gradeCalculator.Entities.UserEntity;
+import com.gradeCalculator.repositories.ModuleRepository;
+import com.gradeCalculator.repositories.SubjectRepository;
+import com.gradeCalculator.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
