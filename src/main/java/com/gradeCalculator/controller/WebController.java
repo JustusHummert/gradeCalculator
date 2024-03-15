@@ -37,14 +37,8 @@ public class WebController {
         return optionalUser.get();
     }
 
-    //directs user to the login.html template
+    //directs user to the main.html template or the login.html template
     @GetMapping("")
-    public String login(){
-        return "login";
-    }
-
-    //directs user to the main.html template
-    @GetMapping("/main")
     public String mainMenu(@ModelAttribute("user") UserEntity user, Model model){
         //if the session is invalid or the username does not exist go to login page
         if(user == null)
@@ -54,19 +48,19 @@ public class WebController {
     }
 
     //Directs user to the subject.html template
-    @GetMapping("/main/subject")
+    @GetMapping("/subject")
     public String subjectMenu(@ModelAttribute("user") UserEntity user, @RequestParam int subjectId, Model model, HttpServletRequest request){
         //if the session is invalid or the username does not exist go to login page
         if(user == null)
             return "login";
-        //if the subject does not exist go to login page
+        //if the subject does not exist redirect to main page
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         if(optionalSubject.isEmpty())
-            return "login";
+            return "redirect:/";
         SubjectEntity subject = optionalSubject.get();
-        //check if user is allowed to access subject
+        //check if user is allowed to access subject else redirect to main page
         if(!user.getSubjects().contains(subject))
-            return "login";
+            return "redirect:/";
         model.addAttribute("subject", subject);
         model.addAttribute("averageGrade", averageGrade(subject));
         model.addAttribute("bestPossibleGrade", bestPossibleGrade(subject));
