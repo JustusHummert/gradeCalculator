@@ -53,7 +53,7 @@ class WebControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("username", user.getUsername());
         //valid request
-        mvc.perform(MockMvcRequestBuilders.get("/main")
+        mvc.perform(MockMvcRequestBuilders.get("")
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -62,13 +62,13 @@ class WebControllerTest {
                 .andExpect(model().attribute("subjects", user.getSubjects()));
         userRepository.delete(user);
         //invalid sessionId
-        mvc.perform(MockMvcRequestBuilders.get("/main")
+        mvc.perform(MockMvcRequestBuilders.get("")
                         .session(new MockHttpSession())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(loginHtmlString)));
         //sessionId not connected to user
-        mvc.perform(MockMvcRequestBuilders.get("/main")
+        mvc.perform(MockMvcRequestBuilders.get("")
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -91,7 +91,7 @@ class WebControllerTest {
         System.out.println("test:" +user.getSubjects());
         System.out.println("test2:" +userRepository.findById(user.getUsername()).get().getSubjects());
         //valid request
-        mvc.perform(MockMvcRequestBuilders.get("/main/subject")
+        mvc.perform(MockMvcRequestBuilders.get("/subject")
                         .param("subjectId", subject.getId().toString())
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
@@ -102,14 +102,14 @@ class WebControllerTest {
                 .andExpect(model().attribute("bestPossibleGrade", 1.15))
                 .andExpect(model().attribute("worstPossibleGrade", 2.65));
         //invalid sessionId
-        mvc.perform(MockMvcRequestBuilders.get("/main/subject")
+        mvc.perform(MockMvcRequestBuilders.get("/subject")
                         .param("subjectId", subject.getId().toString())
                         .session(new MockHttpSession())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(loginHtmlString)));
         //subject does not exist
-        mvc.perform(MockMvcRequestBuilders.get("/main/subject")
+        mvc.perform(MockMvcRequestBuilders.get("/subject")
                         .param("subjectId", "-1")
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
@@ -120,7 +120,7 @@ class WebControllerTest {
         MockHttpSession session2 = new MockHttpSession();
         session2.setAttribute("username", user2.getUsername());
         //user not allowed to access subject
-        mvc.perform(MockMvcRequestBuilders.get("/main/subject")
+        mvc.perform(MockMvcRequestBuilders.get("/subject")
                         .param("subjectId", subject.getId().toString())
                         .session(session2)
                         .accept(MediaType.APPLICATION_JSON))
@@ -129,7 +129,7 @@ class WebControllerTest {
         userRepository.delete(user2);
         userRepository.delete(user);
         //sessionId not connected to valid user
-        mvc.perform(MockMvcRequestBuilders.get("/main/subject")
+        mvc.perform(MockMvcRequestBuilders.get("/subject")
                         .param("subjectId", subject.getId().toString())
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
