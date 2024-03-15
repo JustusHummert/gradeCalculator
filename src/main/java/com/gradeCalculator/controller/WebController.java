@@ -53,14 +53,14 @@ public class WebController {
         //if the session is invalid or the username does not exist go to login page
         if(user == null)
             return "login";
-        //if the subject does not exist go to login page
+        //if the subject does not exist redirect to main page
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         if(optionalSubject.isEmpty())
-            return "login";
+            return "redirect:/";
         SubjectEntity subject = optionalSubject.get();
-        //check if user is allowed to access subject
+        //check if user is allowed to access subject else redirect to main page
         if(!user.getSubjects().contains(subject))
-            return "login";
+            return "redirect:/";
         model.addAttribute("subject", subject);
         model.addAttribute("averageGrade", averageGrade(subject));
         model.addAttribute("bestPossibleGrade", bestPossibleGrade(subject));

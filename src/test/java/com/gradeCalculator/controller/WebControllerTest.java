@@ -113,8 +113,7 @@ class WebControllerTest {
                         .param("subjectId", "-1")
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo(loginHtmlString)));
+                .andExpect(status().is3xxRedirection());
         UserEntity user2 = new UserEntity("user2", "password");
         userRepository.save(user2);
         MockHttpSession session2 = new MockHttpSession();
@@ -124,8 +123,7 @@ class WebControllerTest {
                         .param("subjectId", subject.getId().toString())
                         .session(session2)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo(loginHtmlString)));
+                .andExpect(status().is3xxRedirection());
         userRepository.delete(user2);
         userRepository.delete(user);
         //sessionId not connected to valid user
