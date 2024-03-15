@@ -1,0 +1,28 @@
+<style>
+    .logoutButton {
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-size: large;
+    }
+</style>
+<button type="button" class="logoutButton">logout</button>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+  $(".logoutButton").click(function () {
+    //block default form action
+    event.preventDefault();
+    $.ajax({
+      url: "/logout",
+      method: "post",
+      dataType: "text",
+    })
+      .done(function (data) {
+        console.info(data);
+        location.reload();
+      })
+      .fail(function (jqXHR, textStatus, errorThrown) {
+        console.error(jqXHR, textStatus, errorThrown);
+      });
+  });
+</script>
