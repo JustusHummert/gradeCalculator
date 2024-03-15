@@ -45,4 +45,11 @@ public class LoginController {
         userRepository.save(user);
         return "saved";
     }
+
+    //logout user
+    @PostMapping(path="/logout")
+    public @ResponseBody String logout(HttpServletRequest request){
+        request.getSession().invalidate();
+        return "logged out";
+    }
 }

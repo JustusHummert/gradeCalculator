@@ -26,6 +26,7 @@
             </tr>
         </tbody>
     </table>
+    <div th:replace="~{logoutButton}"></div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 $("#addSubjectBtn").click(function () {
@@ -42,8 +43,6 @@ $("#addSubjectBtn").click(function () {
             console.info(data, subjectName);
             if(data=="saved")
                location.reload();
-            if(data=="session invalid")
-                window.location.href="";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
            console.error(jqXHR, textStatus, errorThrown);
@@ -64,8 +63,6 @@ $(".delete-Subject").click(function () {
             console.info(data, id);
             if(data=="saved")
                location.reload();
-            if(data=="session invalid")
-                window.location.href="";
          })
          .fail(function (jqXHR, textStatus, errorThrown) {
            console.error(jqXHR, textStatus, errorThrown);
@@ -75,7 +72,7 @@ $(".delete-Subject").click(function () {
 $(".select-Subject").click(function () {
         let id = $(this).data("id");
         console.info(id);
-        window.location.href="/main/subject?subjectId="+id;
+        window.location.href="/subject?subjectId="+id;
 });  
 //make button react to Enter
 document.getElementById("subjectName").addEventListener("keypress", function(event){
