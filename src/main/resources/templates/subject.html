@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
+  <style>
+    .subjectSelectionButton {
+        position: absolute;
+        top: 0;
+        right: 80px;
+        font-size: large;
+    }
+  </style>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title th:text="${subject.name}"></title>
@@ -39,7 +47,8 @@
             </tr>
         </tbody>
     </table>
-<div th:replace="~{logoutButton}"></div>
+  <button type="button" class="subjectSelectionButton" onclick="window.location.href='/'">subject selection</button>
+  <div th:replace="~{logoutButton}"></div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://unpkg.com/browse/mathjs@12.4.0/"></script>
 <script>
