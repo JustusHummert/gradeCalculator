@@ -16,14 +16,14 @@ public interface UserService {
      * @param password The password of the new user
      * @return The new user
      */
-    public UserEntity createUser(String username, String password) throws UsernameTaken;
+    UserEntity createUser(String username, String password) throws UsernameTaken;
 
     /**
      * Get the user with the given username
      * @param username The username of the user
      * @return The user with the given username
      */
-    public UserEntity getUser(String username) throws LoginFailed;
+    UserEntity getUser(String username) throws LoginFailed;
 
     /**
      * Get the user with the given username and password
@@ -31,12 +31,12 @@ public interface UserService {
      * @param password The password of the user
      * @return The user with the given username and password
      */
-    public UserEntity getUser(String username, String password) throws LoginFailed;
+    UserEntity getUser(String username, String password) throws LoginFailed;
 
     /**
      * Get the active user
      * @param session The session to get the user from
      * @return The active user
      */
-    public UserEntity getActiveUser(HttpSession session) throws LoginFailed;
+    UserEntity getActiveUser(HttpSession session) throws LoginFailed;
 }

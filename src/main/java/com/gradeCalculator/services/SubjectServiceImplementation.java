@@ -6,10 +6,12 @@ import com.gradeCalculator.Entities.UserEntity;
 import com.gradeCalculator.repositories.SubjectRepository;
 import com.gradeCalculator.services.exceptions.Forbidden;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Service for subject operations
  */
+@Service
 public class SubjectServiceImplementation implements SubjectService{
 
     @Autowired
@@ -58,7 +60,7 @@ public class SubjectServiceImplementation implements SubjectService{
      * @return The average grade of the subject
      */
     @Override
-    public double getAverageGrade(SubjectEntity subject) {
+    public double averageGrade(SubjectEntity subject) {
         return totalGrade(subject)/totalGradingFactor(subject);
     }
 
@@ -89,6 +91,8 @@ public class SubjectServiceImplementation implements SubjectService{
      */
     private double totalGrade(SubjectEntity subject){
         double grade=0;
+        if(subject.getModules()==null || subject.getModules().isEmpty())
+            return 0;
         for(ModuleEntity module : subject.getModules()){
             if(module.getGrade()>0 && module.getGrade()<5)
                 grade+= module.getGrade()* module.getGradingFactor();
@@ -103,6 +107,8 @@ public class SubjectServiceImplementation implements SubjectService{
      */
     private double totalGradingFactor(SubjectEntity subject){
         double total=0;
+        if(subject.getModules()==null || subject.getModules().isEmpty())
+            return 0;
         for(ModuleEntity module : subject.getModules()){
             if(module.getGrade()>0 && module.getGrade()<5)
                 total+= module.getGradingFactor();

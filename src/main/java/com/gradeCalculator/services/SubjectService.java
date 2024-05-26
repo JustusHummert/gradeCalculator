@@ -35,7 +35,7 @@ public interface SubjectService {
      * @param subject The subject to get the average grade of
      * @return The average grade of the subject
      */
-    public double getAverageGrade(SubjectEntity subject);
+    public double averageGrade(SubjectEntity subject);
 
     /**
      * Get the best possible grade of the subject

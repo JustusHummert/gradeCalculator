@@ -9,6 +9,11 @@ import com.gradeCalculator.Entities.SubjectEntity;
 import com.gradeCalculator.repositories.ModuleRepository;
 import com.gradeCalculator.repositories.SubjectRepository;
 import com.gradeCalculator.repositories.UserRepository;
+import com.gradeCalculator.services.ModuleService;
+import com.gradeCalculator.services.SubjectService;
+import com.gradeCalculator.services.UserService;
+import com.gradeCalculator.services.exceptions.UsernameTaken;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +37,12 @@ class MainControllerTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private UserService userService;
+    @Autowired
+    private SubjectService subjectService;
+    @Autowired
+    private ModuleService moduleService;
+    @Autowired
     private MockMvc mvc;
 
     MockHttpSession session;
@@ -45,23 +56,14 @@ class MainControllerTest {
     String tearDownSubjectName = "testSubject 17";
 
     @BeforeEach
-    void setUp() {
-        UserEntity user = new UserEntity("user","password");
-        UserEntity user2 = new UserEntity("user2", "password");
-        setUpSubject = new SubjectEntity("setUpSubject");
-        setUpSubject2 = new SubjectEntity("setUpSubject2");
-        setUpModule = new ModuleEntity("setUpModule",0.4);
-        setUpModule2 = new ModuleEntity("setUpModule2", 0.3);
-        setUpSubject.getModules().add(setUpModule);
-        setUpSubject2.getModules().add(setUpModule2);
-        user.getSubjects().add(setUpSubject);
-        user2.getSubjects().add(setUpSubject2);
-        userRepository.save(user);
-        userRepository.save(user2);
-        moduleRepository.save(setUpModule);
-        moduleRepository.save(setUpModule2);
-        subjectRepository.save(setUpSubject);
-        subjectRepository.save(setUpSubject2);
+    void setUp() throws Exception {
+        tearDown();
+        UserEntity user = userService.createUser("user", "password");
+        UserEntity user2 = userService.createUser("user2", "password");
+        setUpSubject = subjectService.createSubject("setUpSubject", user);
+        setUpSubject2 = subjectService.createSubject("setUpSubject2", user2);
+        setUpModule = moduleService.createModule("setUpModule", 0.4, setUpSubject);
+        setUpModule2 = moduleService.createModule("setUpModule2", 0.3, setUpSubject2);
         session = new MockHttpSession();
         session2 = new MockHttpSession();
         sessionNoUser = new MockHttpSession();
@@ -72,14 +74,8 @@ class MainControllerTest {
 
     @AfterEach
     void tearDown() {
-        userRepository.deleteById(session.getAttribute("username").toString());
-        userRepository.deleteById(session2.getAttribute("username").toString());
-        subjectRepository.delete(setUpSubject);
-        subjectRepository.delete(setUpSubject2);
-        subjectRepository.deleteAll(subjectRepository.findByName(tearDownSubjectName));
-        moduleRepository.delete(setUpModule);
-        moduleRepository.delete(setUpModule2);
-        moduleRepository.deleteAll(moduleRepository.findByName(tearDownModuleName));
+        userRepository.deleteById("user");
+        userRepository.deleteById("user2");
     }
 
     @Test
@@ -121,7 +117,7 @@ class MainControllerTest {
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("subjectId invalid")));
+                .andExpect(content().string(equalTo("Forbidden")));
         //subject does not belong to user
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
                         .param("name", tearDownModuleName)
@@ -130,7 +126,7 @@ class MainControllerTest {
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("subject does not belong to user")));
+                .andExpect(content().string(equalTo("Forbidden")));
     }
 
     @Test
@@ -154,7 +150,7 @@ class MainControllerTest {
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("moduleId invalid")));
+                .andExpect(content().string(equalTo("Forbidden")));
         //invalid session
         mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
                         .param("moduleId", setUpModule.getId().toString())
@@ -178,7 +174,7 @@ class MainControllerTest {
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("module does not belong to user")));
+                .andExpect(content().string(equalTo("Forbidden")));
     }
 
     @Test
@@ -205,6 +201,7 @@ class MainControllerTest {
                 .andExpect(content().string(equalTo("session invalid")));
     }
 
+    @Transactional
     @Test
     void deleteSubject() throws Exception{
         //valid request
@@ -232,14 +229,15 @@ class MainControllerTest {
                         .param("subjectId", "-1")
                         .session(session))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("subjectId invalid")));
+                .andExpect(content().string(equalTo("Forbidden")));
         //subject does not belong to user
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
                         .param("subjectId", setUpSubject2.getId().toString())
                         .session(session))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("subject does not belong to user")));
+                .andExpect(content().string(equalTo("Forbidden")));
     }
+    @Transactional
     @Test
     void  deleteModule() throws Exception{
         //invalid session
@@ -262,28 +260,28 @@ class MainControllerTest {
                         .param("subjectId", setUpSubject.getId().toString())
                         .session(session))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("moduleId invalid")));
+                .andExpect(content().string(equalTo("Forbidden")));
         //subjectId invalid
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", setUpModule.getId().toString())
                         .param("subjectId", "-1")
                         .session(session))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("subjectId invalid")));
+                .andExpect(content().string(equalTo("Forbidden")));
         //module not in subject
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", setUpModule2.getId().toString())
                         .param("subjectId", setUpSubject.getId().toString())
                         .session(session))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("module does not belong to subject")));
+                .andExpect(content().string(equalTo("Forbidden")));
         //subject not in user
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", setUpModule2.getId().toString())
                         .param("subjectId", setUpSubject2.getId().toString())
                         .session(session))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("subject does not belong to user")));
+                .andExpect(content().string(equalTo("Forbidden")));
         //valid request
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", setUpModule.getId().toString())

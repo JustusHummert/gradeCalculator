@@ -6,10 +6,12 @@ import com.gradeCalculator.Entities.UserEntity;
 import com.gradeCalculator.repositories.ModuleRepository;
 import com.gradeCalculator.services.exceptions.Forbidden;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Service for module operations
  */
+@Service
 public class ModuleServiceImplementation implements ModuleService{
 
     @Autowired private ModuleRepository moduleRepository;
@@ -19,11 +21,10 @@ public class ModuleServiceImplementation implements ModuleService{
      * @param name          The name of the module
      * @param gradingFactor The grading factor of the module
      * @param subject       the subject the module should belong to
-     * @param user          The user that wants to create the module
      * @return The new module
      */
     @Override
-    public ModuleEntity createModule(String name, double gradingFactor, SubjectEntity subject, UserEntity user) throws Forbidden {
+    public ModuleEntity createModule(String name, double gradingFactor, SubjectEntity subject) throws Forbidden {
         ModuleEntity module = new ModuleEntity(name, gradingFactor, subject);
         return moduleRepository.save(module);
     }

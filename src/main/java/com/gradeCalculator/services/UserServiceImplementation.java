@@ -7,14 +7,20 @@ import com.gradeCalculator.services.exceptions.UsernameTaken;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.stereotype.Service;
 
-
+/**
+ * Service for user operations
+ */
+@Service
 public class UserServiceImplementation implements UserService{
-    @Autowired private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Create a new user
      * check if the user already exists
+     * Encrypt the password
      * @param username The username of the new user
      * @param password The password of the new user
      * @return The new user
@@ -25,7 +31,7 @@ public class UserServiceImplementation implements UserService{
             throw new UsernameTaken();
         UserEntity user = new UserEntity();
         user.setUsername(username);
-        user.setPassword(password);
+        user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
         return userRepository.save(user);
     }
 
