@@ -3,6 +3,7 @@ package com.gradeCalculator.services;
 import com.gradeCalculator.Entities.UserEntity;
 import com.gradeCalculator.services.exceptions.LoginFailed;
 import com.gradeCalculator.services.exceptions.UsernameTaken;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Service for user operations
@@ -31,4 +32,11 @@ public interface UserService {
      * @return The user with the given username and password
      */
     public UserEntity getUser(String username, String password) throws LoginFailed;
+
+    /**
+     * Get the active user
+     * @param session The session to get the user from
+     * @return The active user
+     */
+    public UserEntity getActiveUser(HttpSession session) throws LoginFailed;
 }

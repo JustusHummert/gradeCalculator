@@ -4,10 +4,10 @@ import com.gradeCalculator.Entities.UserEntity;
 import com.gradeCalculator.repositories.UserRepository;
 import com.gradeCalculator.services.exceptions.LoginFailed;
 import com.gradeCalculator.services.exceptions.UsernameTaken;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
-import java.util.Optional;
 
 public class UserServiceImplementation implements UserService{
     @Autowired private UserRepository userRepository;
@@ -26,8 +26,7 @@ public class UserServiceImplementation implements UserService{
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setPassword(password);
-        userRepository.save(user);
-        return user;
+        return userRepository.save(user);
     }
 
     /**
@@ -38,10 +37,7 @@ public class UserServiceImplementation implements UserService{
      */
     @Override
     public UserEntity getUser(String username) throws LoginFailed {
-        Optional<UserEntity> user = userRepository.findById(username);
-        if(user.isEmpty())
-            throw new LoginFailed();
-        return user.get();
+        return userRepository.findById(username).orElseThrow(LoginFailed::new);
     }
 
     /**
@@ -57,5 +53,20 @@ public class UserServiceImplementation implements UserService{
         if(!BCrypt.checkpw(password, user.getPassword()))
             throw new LoginFailed();
         return user;
+    }
+
+    /**
+     * Get the active user
+     * Throws an exception if the user is not logged in
+     * @param session The session to get the user from
+     * @return The active user
+     */
+    @Override
+    public UserEntity getActiveUser(HttpSession session) throws LoginFailed {
+        Object usernameObject = session.getAttribute("username");
+        if(usernameObject == null)
+            throw new LoginFailed();
+        String username =  usernameObject.toString();
+        return getUser(username);
     }
 }

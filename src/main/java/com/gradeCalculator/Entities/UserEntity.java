@@ -12,14 +12,13 @@ public class UserEntity {
 
     private String password;
 
-    @OneToMany(fetch =  FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<SubjectEntity> subjects;
 
     public UserEntity(){}
     public UserEntity(String username, String password){
         this.username = username;
         this.password = password;
-        this.subjects = new HashSet<>();
     }
 
 
