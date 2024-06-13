@@ -14,11 +14,15 @@ public class ModuleEntity {
 
     private double gradingFactor;
 
+    @ManyToOne
+    private SubjectEntity subject;
+
     public ModuleEntity(){}
 
-    public ModuleEntity(String name, double gradingFactor){
+    public ModuleEntity(String name, double gradingFactor, SubjectEntity subject){
         this.name = name;
         this.gradingFactor = gradingFactor;
+        this.subject = subject;
     }
 
     public Integer getId() {
@@ -52,5 +56,13 @@ public class ModuleEntity {
 
     public void setGradingFactor(double gradingFactor) {
         this.gradingFactor = gradingFactor;
+    }
+
+    public SubjectEntity getSubject() {
+        return subject;
+    }
+
+    public void setSubject(SubjectEntity subject) {
+        this.subject = subject;
     }
 }

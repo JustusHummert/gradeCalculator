@@ -14,14 +14,17 @@ public class SubjectEntity {
 
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<ModuleEntity> modules;
+
+    @ManyToOne
+    private UserEntity user;
 
     public SubjectEntity(){}
 
-    public SubjectEntity(String name){
+    public SubjectEntity(String name, UserEntity user){
         this.name = name;
-        this.modules = new HashSet<>();
+        this.user = user;
     }
 
     @Override
@@ -59,5 +62,13 @@ public class SubjectEntity {
 
     public void setModules(Set<ModuleEntity> modules) {
         this.modules = modules;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 }
