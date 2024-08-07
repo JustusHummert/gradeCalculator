@@ -50,9 +50,9 @@ class WebControllerTest {
     @BeforeEach
     @AfterEach
     void cleanUp(){
-        userRepository.deleteAll();
-        subjectRepository.deleteAll();
         moduleRepository.deleteAll();
+        subjectRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     public WebControllerTest() throws Exception{
@@ -70,7 +70,7 @@ class WebControllerTest {
     @Test
     void mainMenu() throws Exception {
         UserEntity user = userService.createUser("user", "password");
-        subjectService.createSubject("subject", user);
+        SubjectEntity subject = subjectService.createSubject("subject", user);
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("username", user.getUsername());
         user = userRepository.findById(user.getUsername()).get();
@@ -83,7 +83,8 @@ class WebControllerTest {
                 .andExpect(content().string(not(equalTo(loginHtmlString))))
                 .andExpect(model().attributeExists("subjects"))
                 .andExpect(model().attribute("subjects", user.getSubjects()));
-        userRepository.delete(user);
+        subjectService.deleteSubject(subject);
+        userRepository.deleteById(user.getUsername());
         //invalid sessionId
         mvc.perform(MockMvcRequestBuilders.get("")
                         .session(new MockHttpSession())

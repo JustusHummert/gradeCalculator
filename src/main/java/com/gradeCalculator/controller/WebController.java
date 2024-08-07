@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class WebController {
@@ -19,8 +18,6 @@ public class WebController {
     UserService userService;
     @Autowired
     SubjectService subjectService;
-    @Autowired
-    ModuleService moduleService;
 
     /**
      * Directs user to the main.html template or the login.html template
@@ -52,7 +49,7 @@ public class WebController {
      * @return The template to direct the user to
      */
     @GetMapping("/subject")
-    public String subjectMenu(@RequestParam int subjectId, Model model, HttpServletRequest request){
+    public String subjectMenu(int subjectId, Model model, HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
             SubjectEntity subject = subjectService.getSubject(subjectId, user);

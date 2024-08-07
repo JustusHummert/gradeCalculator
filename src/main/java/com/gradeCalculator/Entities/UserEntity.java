@@ -12,7 +12,7 @@ public class UserEntity {
 
     private String password;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<SubjectEntity> subjects;
 
     public UserEntity(){}

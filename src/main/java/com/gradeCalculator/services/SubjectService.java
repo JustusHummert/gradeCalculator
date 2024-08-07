@@ -3,6 +3,7 @@ package com.gradeCalculator.services;
 import com.gradeCalculator.Entities.SubjectEntity;
 import com.gradeCalculator.Entities.UserEntity;
 import com.gradeCalculator.services.exceptions.Forbidden;
+import jakarta.transaction.Transactional;
 
 /**
  * Service for subject operations

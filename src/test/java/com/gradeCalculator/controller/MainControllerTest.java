@@ -57,7 +57,7 @@ class MainControllerTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        tearDown();
+        cleanUp();
         UserEntity user = userService.createUser("user", "password");
         UserEntity user2 = userService.createUser("user2", "password");
         setUpSubject = subjectService.createSubject("setUpSubject", user);
@@ -73,9 +73,10 @@ class MainControllerTest {
     }
 
     @AfterEach
-    void tearDown() {
-        userRepository.deleteById("user");
-        userRepository.deleteById("user2");
+    void cleanUp(){
+        moduleRepository.deleteAll();
+        subjectRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -201,41 +202,40 @@ class MainControllerTest {
                 .andExpect(content().string(equalTo("session invalid")));
     }
 
-    @Transactional
     @Test
     void deleteSubject() throws Exception{
+        //check if the subject is in the database
+        assertTrue(subjectRepository.findById(setUpSubject.getId()).isPresent(), "The subject should be in the database");
         //valid request
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
                         .param("subjectId", setUpSubject.getId().toString())
                         .session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("saved")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(content().string(equalTo("")));
         //check if request worked
         assertFalse(subjectRepository.findById((setUpSubject.getId())).isPresent(), "Subject should have been deleted");
         //invalid session
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
                         .param("subjectId", setUpSubject.getId().toString())
                         .session(new MockHttpSession()))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(content().string(equalTo("")));
         //session with invalid username
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
                         .param("subjectId", setUpSubject.getId().toString())
                         .session(sessionNoUser))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(content().string(equalTo("")));
         //invalid subjectId
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
                         .param("subjectId", "-1")
                         .session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
+                .andExpect(status().is4xxClientError());
         //subject does not belong to user
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteSubject")
                         .param("subjectId", setUpSubject2.getId().toString())
                         .session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
+                .andExpect(status().is4xxClientError());
     }
     @Transactional
     @Test

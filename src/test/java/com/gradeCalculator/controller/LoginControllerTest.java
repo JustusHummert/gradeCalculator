@@ -29,9 +29,17 @@ class LoginControllerTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private ModuleRepository moduleRepository;
+
     @BeforeEach
     @AfterEach
     void cleanUp(){
+        moduleRepository.deleteAll();
+        subjectRepository.deleteAll();
         userRepository.deleteAll();
     }
 

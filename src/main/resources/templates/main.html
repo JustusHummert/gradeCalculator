@@ -17,11 +17,12 @@
         <tbody>
             <tr th:each="subject: ${subjects}">
               <p>
-                <td th:text="${subject.name}"></td>
-                <td><button type="button" id="selectBtn" class="btn select-Subject"
-                th:data-id="${subject.id}">select</button></td>
-                <td><button type="button" id="deleteSubjectBtn" class="btn delete-Subject"
-                th:data-id="${subject.id}">delete</button></td>
+                <form method="GET" th:action="@{/subject?subjectId=${subject.id}}">
+                  <td th:text="${subject.name}"></td>
+                  <input type="hidden" th:name="subjectId" th:value="${subject.id}">
+                  <input type="submit" value="select">
+                  <input type="submit" value="delete" th:formaction="@{/main/deleteSubject}" formmethod="post">
+                </form>
               </p>
             </tr>
         </tbody>
@@ -48,31 +49,6 @@ $("#addSubjectBtn").click(function () {
            console.error(jqXHR, textStatus, errorThrown);
          });
 
-});  
-$(".delete-Subject").click(function () {
-       let id = $(this).data("id");
-       $.ajax({
-         url: "/main/deleteSubject",
-         method: "post",
-         data: {
-            subjectId: id
-         },
-         dataType: "text",
-       })
-         .done(function (data) {
-            console.info(data, id);
-            if(data=="saved")
-               location.reload();
-         })
-         .fail(function (jqXHR, textStatus, errorThrown) {
-           console.error(jqXHR, textStatus, errorThrown);
-         });
-
-});
-$(".select-Subject").click(function () {
-        let id = $(this).data("id");
-        console.info(id);
-        window.location.href="/subject?subjectId="+id;
 });  
 //make button react to Enter
 document.getElementById("subjectName").addEventListener("keypress", function(event){

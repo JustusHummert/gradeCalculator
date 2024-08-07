@@ -39,7 +39,7 @@ public interface ModuleService {
      * Delete the module
      * @param module The module to delete
      */
-    void deleteModule(ModuleEntity module);
+    void delete(ModuleEntity module);
 
     /**
      * Get the weighted grade of the module

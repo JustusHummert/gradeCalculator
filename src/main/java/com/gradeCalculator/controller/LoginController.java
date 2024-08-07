@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.stereotype.Controller;
 
@@ -25,7 +24,7 @@ public class LoginController {
      * @return The result of the login
      */
     @PostMapping(path="/login")
-    public @ResponseBody String login(@RequestParam String username, @RequestParam String password, HttpServletRequest request){
+    public @ResponseBody String login(String username, String password, HttpServletRequest request){
         try {
             request.getSession().setAttribute("username", userService.getUser(username, password).getUsername());
             //set an expiration time for the session 1 hour
@@ -44,7 +43,7 @@ public class LoginController {
      * @return The result of the registration
      */
     @PostMapping(path="/register")
-    public @ResponseBody String register(@RequestParam String username, @RequestParam String password, HttpServletRequest request) {
+    public @ResponseBody String register(String username, String password, HttpServletRequest request) {
         try {
             request.getSession().setAttribute("username", userService.createUser(username, password));
             //set an expiration time for the session 1 hour

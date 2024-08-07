@@ -10,8 +10,10 @@ import com.gradeCalculator.services.exceptions.Forbidden;
 import com.gradeCalculator.services.exceptions.LoginFailed;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 @RequestMapping(path="/main")
@@ -33,7 +35,7 @@ public class MainController {
      * @return the result of the operation
      */
     @PostMapping(path="/addModule")
-    public @ResponseBody String addNewModule(@RequestParam String name, @RequestParam double gradingFactor, @RequestParam int subjectId,
+    public @ResponseBody String addNewModule(String name, double gradingFactor, int subjectId,
                                              HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
@@ -56,7 +58,7 @@ public class MainController {
      * @return the result of the operation
      */
     @PostMapping(path="/addGrade")
-    public @ResponseBody String addNewGrade(@RequestParam int moduleId, @RequestParam double grade, HttpServletRequest request){
+    public @ResponseBody String addNewGrade(int moduleId, double grade, HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
             ModuleEntity module = moduleService.getModule(moduleId, user);
@@ -78,7 +80,7 @@ public class MainController {
      * @return the result of the operation
      */
     @PostMapping(path="/addSubject")
-    public @ResponseBody String addNewSubject(@RequestParam String name, HttpServletRequest request){
+    public @ResponseBody String addNewSubject(String name, HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
             subjectService.createSubject(name, user);
@@ -96,17 +98,17 @@ public class MainController {
      * @return the result of the operation
      */
     @PostMapping(path = "/deleteSubject")
-    public @ResponseBody String deleteSubject(@RequestParam int subjectId, HttpServletRequest request){
+    public String deleteSubject(int subjectId, HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
             SubjectEntity subject = subjectService.getSubject(subjectId, user);
             subjectService.deleteSubject(subject);
         } catch (Forbidden e) {
-            return "Forbidden";
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } catch (LoginFailed e) {
-            return "session invalid";
+            return "redirect:/";
         }
-        return "saved";
+        return "redirect:/";
     }
 
     /**
@@ -117,12 +119,12 @@ public class MainController {
      * @return the result of the operation
      */
     @PostMapping(path ="/deleteModule")
-    public @ResponseBody String deleteModule(@RequestParam int moduleId, @RequestParam int subjectId, HttpServletRequest request){
+    public @ResponseBody String deleteModule(int moduleId, int subjectId, HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
             SubjectEntity subject = subjectService.getSubject(subjectId, user);
             ModuleEntity module = moduleService.getModule(moduleId, user);
-            moduleService.deleteModule(module);
+            moduleService.delete(module);
         } catch (LoginFailed e) {
             return "session invalid";
         } catch (Forbidden e) {
