@@ -64,7 +64,7 @@ public class ModuleServiceImplementation implements ModuleService{
      * @param module The module to delete
      */
     @Override
-    public void deleteModule(ModuleEntity module) {
+    public void delete(ModuleEntity module) {
         moduleRepository.delete(module);
     }
 

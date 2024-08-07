@@ -17,6 +17,9 @@ public class SubjectServiceImplementation implements SubjectService{
     @Autowired
     private SubjectRepository subjectRepository;
 
+    @Autowired
+    private ModuleService moduleService;
+
     /**
      * Create a new subject
      * @param name The name of the subject
@@ -46,11 +49,15 @@ public class SubjectServiceImplementation implements SubjectService{
     }
 
     /**
-     * Delete the subject
+     * Delete the subject and all modules in it
      * @param subject The subject to delete
      */
     @Override
     public void deleteSubject(SubjectEntity subject) {
+        if(subject.getModules()!=null && !subject.getModules().isEmpty())
+            for(ModuleEntity module : subject.getModules()){
+                moduleService.delete(module);
+            }
         subjectRepository.delete(subject);
     }
 

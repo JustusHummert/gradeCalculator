@@ -14,7 +14,7 @@ public class SubjectEntity {
 
     private String name;
 
-    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)
     private Set<ModuleEntity> modules;
 
     @ManyToOne
