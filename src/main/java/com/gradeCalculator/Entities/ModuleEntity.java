@@ -1,6 +1,9 @@
 package com.gradeCalculator.Entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 public class ModuleEntity {
@@ -8,10 +11,15 @@ public class ModuleEntity {
     @GeneratedValue
     private Integer id;
 
+    @NotBlank
     private String name;
 
+    @Max(value = 5)
+    @Min(value = 0)
     private double grade;
 
+    @Max(value = 1)
+    @Min(value = 0)
     private double gradingFactor;
 
     @ManyToOne
