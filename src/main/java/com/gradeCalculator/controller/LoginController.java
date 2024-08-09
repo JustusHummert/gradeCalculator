@@ -60,8 +60,8 @@ public class LoginController {
      * @return The result of the logout
      */
     @PostMapping(path="/logout")
-    public @ResponseBody String logout(HttpServletRequest request){
+    public String logout(HttpServletRequest request){
         request.getSession().invalidate();
-        return "logged out";
+        return "redirect/";
     }
 }
