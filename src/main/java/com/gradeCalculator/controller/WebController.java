@@ -1,7 +1,6 @@
 package com.gradeCalculator.controller;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
-import com.gradeCalculator.services.ModuleService;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
 import com.gradeCalculator.services.SubjectService;
 import com.gradeCalculator.services.UserService;
 import com.gradeCalculator.services.exceptions.Forbidden;

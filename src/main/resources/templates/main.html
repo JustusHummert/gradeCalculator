@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Main</title>
 </head>
 <body>
     <!-- Subjects-->
     <p>Subjects</p>
     <p>
-      <form id="subjectForm">
-        <input type="text" id="subjectName" aria-label="subjectName" />
-        <button type="button" id="addSubjectBtn">add</button>
+      <form method="POST" action="/main/addSubject">
+        <input type="text" name="name" id="subjectName">
+        <input type="submit" value="add" id="addSubjectBtn">
       </form>
     </p>
     <table id= subjectTable></table>
@@ -19,44 +18,14 @@
               <p>
                 <form method="GET" th:action="@{/subject?subjectId=${subject.id}}">
                   <td th:text="${subject.name}"></td>
-                  <input type="hidden" th:name="subjectId" th:value="${subject.id}">
+                  <input type="hidden" name="subjectId" th:value="${subject.id}">
                   <input type="submit" value="select">
-                  <input type="submit" value="delete" th:formaction="@{/main/deleteSubject}" formmethod="post">
+                  <input type="submit" value="delete" formaction="/main/deleteSubject" formmethod="post">
                 </form>
               </p>
             </tr>
         </tbody>
     </table>
     <div th:replace="~{logoutButton}"></div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script>
-$("#addSubjectBtn").click(function () {
-       let subjectName = $("#subjectName").val();
-       $.ajax({
-         url: "/main/addSubject",
-         method: "post",
-         data: {
-            name: subjectName
-         },
-         dataType: "text",
-       })
-         .done(function (data) {
-            console.info(data, subjectName);
-            if(data=="saved")
-               location.reload();
-         })
-         .fail(function (jqXHR, textStatus, errorThrown) {
-           console.error(jqXHR, textStatus, errorThrown);
-         });
-
-});  
-//make button react to Enter
-document.getElementById("subjectName").addEventListener("keypress", function(event){
-  if(event.key === "Enter") {
-    event.preventDefault();
-    document.getElementById("addSubjectBtn").click();
-  }
-});
-</script>
 </body>
 </html>

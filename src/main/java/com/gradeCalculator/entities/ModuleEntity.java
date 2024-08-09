@@ -1,4 +1,4 @@
-package com.gradeCalculator.Entities;
+package com.gradeCalculator.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -14,8 +14,8 @@ public class ModuleEntity {
     @NotBlank
     private String name;
 
-    @Max(value = 5)
-    @Min(value = 0)
+    @Max(value = 4)
+    @Min(value = 1)
     private double grade;
 
     @Max(value = 1)
@@ -27,9 +27,10 @@ public class ModuleEntity {
 
     public ModuleEntity(){}
 
-    public ModuleEntity(String name, double gradingFactor, SubjectEntity subject){
+    public ModuleEntity(String name, double gradingFactor, double grade, SubjectEntity subject){
         this.name = name;
         this.gradingFactor = gradingFactor;
+        this.grade = grade;
         this.subject = subject;
     }
 

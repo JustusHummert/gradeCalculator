@@ -2,9 +2,9 @@ package com.gradeCalculator.controller;
 
 import static org.hamcrest.Matchers.*;
 
-import com.gradeCalculator.Entities.ModuleEntity;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
+import com.gradeCalculator.entities.ModuleEntity;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
 import com.gradeCalculator.repositories.ModuleRepository;
 import com.gradeCalculator.repositories.SubjectRepository;
 import com.gradeCalculator.repositories.UserRepository;
