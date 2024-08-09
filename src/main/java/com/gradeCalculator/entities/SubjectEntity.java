@@ -1,8 +1,8 @@
-package com.gradeCalculator.Entities;
+package com.gradeCalculator.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -12,6 +12,7 @@ public class SubjectEntity {
     @GeneratedValue
     private Integer id;
 
+    @NotBlank
     private String name;
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)

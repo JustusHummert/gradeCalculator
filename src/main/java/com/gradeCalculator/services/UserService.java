@@ -1,6 +1,6 @@
 package com.gradeCalculator.services;
 
-import com.gradeCalculator.Entities.UserEntity;
+import com.gradeCalculator.entities.UserEntity;
 import com.gradeCalculator.services.exceptions.LoginFailed;
 import com.gradeCalculator.services.exceptions.UsernameTaken;
 import jakarta.servlet.http.HttpSession;

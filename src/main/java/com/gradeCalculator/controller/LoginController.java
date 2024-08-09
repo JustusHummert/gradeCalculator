@@ -24,15 +24,15 @@ public class LoginController {
      * @return The result of the login
      */
     @PostMapping(path="/login")
-    public @ResponseBody String login(String username, String password, HttpServletRequest request){
+    public String login(String username, String password, HttpServletRequest request){
         try {
             request.getSession().setAttribute("username", userService.getUser(username, password).getUsername());
             //set an expiration time for the session 1 hour
             request.getSession().setMaxInactiveInterval(60*60);
+            return "redirect:/";
         } catch (LoginFailed e) {
-            return "failed";
+            return "redirect:/?wrongUsernameOrPassword";
         }
-        return "logged in";
     }
 
     /**
@@ -43,15 +43,15 @@ public class LoginController {
      * @return The result of the registration
      */
     @PostMapping(path="/register")
-    public @ResponseBody String register(String username, String password, HttpServletRequest request) {
+    public String register(String username, String password, HttpServletRequest request) {
         try {
             request.getSession().setAttribute("username", userService.createUser(username, password));
             //set an expiration time for the session 1 hour
             request.getSession().setMaxInactiveInterval(60*60);
+            return "redirect:/";
         } catch (UsernameTaken e) {
-            return "username already exists";
+            return "redirect:/?usernameTaken";
         }
-        return "saved";
     }
 
     /**

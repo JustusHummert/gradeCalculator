@@ -1,8 +1,8 @@
 package com.gradeCalculator.services;
 
-import com.gradeCalculator.Entities.ModuleEntity;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
+import com.gradeCalculator.entities.ModuleEntity;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
 import com.gradeCalculator.repositories.SubjectRepository;
 import com.gradeCalculator.services.exceptions.Forbidden;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,14 +97,7 @@ public class SubjectServiceImplementation implements SubjectService{
      * @return The total grade of the subject
      */
     private double totalGrade(SubjectEntity subject){
-        double grade=0;
-        if(subject.getModules()==null || subject.getModules().isEmpty())
-            return 0;
-        for(ModuleEntity module : subject.getModules()){
-            if(module.getGrade()>0 && module.getGrade()<5)
-                grade+= module.getGrade()* module.getGradingFactor();
-        }
-        return grade;
+        return subjectRepository.totalGrade(subject);
     }
 
     /**
@@ -113,13 +106,6 @@ public class SubjectServiceImplementation implements SubjectService{
      * @return The total grading factor of the subject
      */
     private double totalGradingFactor(SubjectEntity subject){
-        double total=0;
-        if(subject.getModules()==null || subject.getModules().isEmpty())
-            return 0;
-        for(ModuleEntity module : subject.getModules()){
-            if(module.getGrade()>0 && module.getGrade()<5)
-                total+= module.getGradingFactor();
-        }
-        return total;
+        return subjectRepository.totalGradingFactor(subject);
     }
 }

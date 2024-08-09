@@ -1,8 +1,8 @@
 package com.gradeCalculator.controller;
 
-import com.gradeCalculator.Entities.ModuleEntity;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
+import com.gradeCalculator.entities.ModuleEntity;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
 import com.gradeCalculator.services.ModuleService;
 import com.gradeCalculator.services.SubjectService;
 import com.gradeCalculator.services.UserService;
@@ -35,19 +35,20 @@ public class MainController {
      * @return the result of the operation
      */
     @PostMapping(path="/addModule")
-    public @ResponseBody String addNewModule(String name, double gradingFactor, int subjectId,
+    public @ResponseBody String addNewModule(String name, double gradingFactor, double grade, int subjectId,
                                              HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
             SubjectEntity subject = subjectService.getSubject(subjectId, user);
-            moduleService.createModule(name, gradingFactor, subject);
+            moduleService.createModule(name, gradingFactor, grade, subject);
+            return "success";
         }
         catch (LoginFailed e){
-            return "session invalid";
-        } catch (Forbidden e) {
-            return "Forbidden";
+            return "failed";
         }
-        return "saved";
+        catch (Forbidden e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -58,19 +59,19 @@ public class MainController {
      * @return the result of the operation
      */
     @PostMapping(path="/addGrade")
-    public @ResponseBody String addNewGrade(int moduleId, double grade, HttpServletRequest request){
+    public String addNewGrade(int moduleId, double grade, HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
             ModuleEntity module = moduleService.getModule(moduleId, user);
             moduleService.setGrade(module, grade);
+            return "redirect:/subject?subjectId=" + module.getSubject().getId();
         }
         catch (LoginFailed e) {
-            return "session invalid";
+            return "redirect:/";
         }
         catch (Forbidden e){
-            return "Forbidden";
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        return "saved";
     }
 
     /**
@@ -80,15 +81,15 @@ public class MainController {
      * @return the result of the operation
      */
     @PostMapping(path="/addSubject")
-    public @ResponseBody String addNewSubject(String name, HttpServletRequest request){
+    public String addNewSubject(String name, HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
             subjectService.createSubject(name, user);
+            return "redirect:/";
         }
         catch (LoginFailed e){
-            return "session invalid";
+            return "redirect:/";
         }
-        return "saved";
     }
 
     /**
@@ -114,22 +115,21 @@ public class MainController {
     /**
      * Delete a module
      * @param moduleId The id of the module
-     * @param subjectId The id of the subject the module belongs to
      * @param request The request to get the user from
      * @return the result of the operation
      */
     @PostMapping(path ="/deleteModule")
-    public @ResponseBody String deleteModule(int moduleId, int subjectId, HttpServletRequest request){
+    public String deleteModule(int moduleId, HttpServletRequest request){
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
-            SubjectEntity subject = subjectService.getSubject(subjectId, user);
             ModuleEntity module = moduleService.getModule(moduleId, user);
             moduleService.delete(module);
+            return "redirect:/subject?subjectId=" + module.getSubject().getId();
         } catch (LoginFailed e) {
-            return "session invalid";
-        } catch (Forbidden e) {
-            return "Forbidden";
+            return "redirect:/";
         }
-        return "saved";
+        catch (Forbidden e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
     }
 }

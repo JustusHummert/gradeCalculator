@@ -1,15 +1,18 @@
-package com.gradeCalculator.Entities;
+package com.gradeCalculator.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 public class UserEntity {
+
     @Id
+    @NotBlank
     private String username;
 
+    @NotBlank
     private String password;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)

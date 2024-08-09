@@ -1,16 +1,17 @@
 package com.gradeCalculator.controller;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
-import com.gradeCalculator.services.ModuleService;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
 import com.gradeCalculator.services.SubjectService;
 import com.gradeCalculator.services.UserService;
 import com.gradeCalculator.services.exceptions.Forbidden;
 import com.gradeCalculator.services.exceptions.LoginFailed;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class WebController {
@@ -61,7 +62,7 @@ public class WebController {
         } catch (LoginFailed e){
             return "login";
         } catch (Forbidden e) {
-            return "redirect:/";
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
 
