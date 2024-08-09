@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -62,6 +61,6 @@ public class LoginController {
     @PostMapping(path="/logout")
     public String logout(HttpServletRequest request){
         request.getSession().invalidate();
-        return "redirect/";
+        return "redirect:/";
     }
 }
