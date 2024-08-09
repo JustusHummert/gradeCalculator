@@ -43,8 +43,11 @@ public class MainController {
             moduleService.createModule(name, gradingFactor, grade, subject);
             return "success";
         }
-        catch (LoginFailed | Forbidden e){
+        catch (LoginFailed e){
             return "failed";
+        }
+        catch (Forbidden e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
 
@@ -63,8 +66,11 @@ public class MainController {
             moduleService.setGrade(module, grade);
             return "redirect:/subject?subjectId=" + module.getSubject().getId();
         }
-        catch (LoginFailed | Forbidden e) {
+        catch (LoginFailed e) {
             return "redirect:/";
+        }
+        catch (Forbidden e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
 
@@ -79,11 +85,11 @@ public class MainController {
         try {
             UserEntity user = userService.getActiveUser(request.getSession());
             subjectService.createSubject(name, user);
+            return "redirect:/";
         }
         catch (LoginFailed e){
             return "redirect:/";
         }
-        return "redirect:/";
     }
 
     /**
@@ -119,8 +125,11 @@ public class MainController {
             ModuleEntity module = moduleService.getModule(moduleId, user);
             moduleService.delete(module);
             return "redirect:/subject?subjectId=" + module.getSubject().getId();
-        } catch (LoginFailed | Forbidden e) {
+        } catch (LoginFailed e) {
             return "redirect:/";
+        }
+        catch (Forbidden e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
 }

@@ -1,8 +1,6 @@
 package com.gradeCalculator.controller;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.gradeCalculator.entities.ModuleEntity;
 import com.gradeCalculator.entities.SubjectEntity;
@@ -26,6 +24,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class MainControllerTest {
@@ -61,8 +61,8 @@ class MainControllerTest {
         UserEntity user2 = userService.createUser("user2", "password");
         setUpSubject = subjectService.createSubject("setUpSubject", user);
         setUpSubject2 = subjectService.createSubject("setUpSubject2", user2);
-        setUpModule = moduleService.createModule("setUpModule", 0.4, setUpSubject);
-        setUpModule2 = moduleService.createModule("setUpModule2", 0.3, setUpSubject2);
+        setUpModule = moduleService.createModule("setUpModule", 0.4, 1.0, setUpSubject);
+        setUpModule2 = moduleService.createModule("setUpModule2", 0.3, 1.0, setUpSubject2);
         session = new MockHttpSession();
         session2 = new MockHttpSession();
         sessionNoUser = new MockHttpSession();
@@ -84,49 +84,52 @@ class MainControllerTest {
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
                         .param("name", tearDownModuleName)
                         .param("gradingFactor", "0.5")
+                        .param("grade", "1.0")
                         .param("subjectId", setUpSubject.getId().toString())
                         .session(session)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("saved")));
+                .andExpect(content().string(equalTo("success")));
         //check if request worked
         assertTrue(moduleRepository.findByName(tearDownModuleName).iterator().hasNext(), "There should be a session with the given name");
         //request with invalid session
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
                         .param("name", tearDownModuleName)
                         .param("gradingFactor", "0.5")
+                        .param("grade", "1.0")
                         .param("subjectId", setUpSubject.getId().toString())
                         .session(sessionNoUser)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(content().string(equalTo("failed")));
         //request with session saved with invalid username
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
                         .param("name", tearDownModuleName)
                         .param("gradingFactor", "0.5")
+                        .param("grade", "1.0")
                         .param("subjectId", setUpSubject.getId().toString())
                         .session(sessionNoUser)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(content().string(equalTo("failed")));
         //invalid subjectId
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
                         .param("name", tearDownModuleName)
                         .param("gradingFactor", "0.5")
+                        .param("grade", "1.0")
                         .param("subjectId", "-1")
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
+                .andExpect(status().isForbidden());
         //subject does not belong to user
         mvc.perform(MockMvcRequestBuilders.post("/main/addModule")
                         .param("name", tearDownModuleName)
                         .param("gradingFactor", "0.5")
+                        .param("grade", "1.0")
                         .param("subjectId", setUpSubject2.getId().toString())
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -137,8 +140,8 @@ class MainControllerTest {
                         .param("grade", "1.0")
                         .session(session)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("saved")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/subject?subjectId=" + setUpSubject.getId()));
         //check if request worked
         //noinspection OptionalGetWithoutIsPresent
         setUpModule = moduleRepository.findById(setUpModule.getId()).get();
@@ -149,32 +152,30 @@ class MainControllerTest {
                         .param("grade", "1.0")
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
+                .andExpect(status().isForbidden());
         //invalid session
         mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
                         .param("moduleId", setUpModule.getId().toString())
                         .param("grade", "1.0")
                         .session(new MockHttpSession())
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //session with invalid username
         mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
                         .param("moduleId", setUpModule.getId().toString())
                         .param("grade", "1.0")
                         .session(sessionNoUser)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //module does not belong to user
         mvc.perform(MockMvcRequestBuilders.post("/main/addGrade")
                         .param("moduleId", setUpModule2.getId().toString())
                         .param("grade", "1.0")
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -183,22 +184,22 @@ class MainControllerTest {
         mvc.perform(MockMvcRequestBuilders.post("/main/addSubject")
                 .param("name", tearDownSubjectName)
                 .session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("saved")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //check if request worked
         assertTrue(subjectRepository.findByName(tearDownSubjectName).iterator().hasNext(), "There should be an Subject with the given name");
         //invalid session
         mvc.perform(MockMvcRequestBuilders.post("/main/addSubject")
                         .param("name", tearDownSubjectName)
                         .session(new MockHttpSession()))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //session with invalid username
         mvc.perform(MockMvcRequestBuilders.post("/main/addSubject")
                         .param("name", tearDownSubjectName)
                         .session(sessionNoUser))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
     }
 
     @Test
@@ -242,52 +243,32 @@ class MainControllerTest {
         //invalid session
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", setUpModule.getId().toString())
-                        .param("subjectId", setUpSubject.getId().toString())
                         .session(new MockHttpSession()))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //session with invalid username
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", setUpModule.getId().toString())
-                        .param("subjectId", setUpSubject.getId().toString())
                         .session(sessionNoUser))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("session invalid")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //moduleId invalid
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", "-1")
-                        .param("subjectId", setUpSubject.getId().toString())
                         .session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
-        //subjectId invalid
-        mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
-                        .param("moduleId", setUpModule.getId().toString())
-                        .param("subjectId", "-1")
-                        .session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
-        //module not in subject
-        mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
-                        .param("moduleId", setUpModule2.getId().toString())
-                        .param("subjectId", setUpSubject.getId().toString())
-                        .session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
+                .andExpect(status().isForbidden());
         //subject not in user
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", setUpModule2.getId().toString())
-                        .param("subjectId", setUpSubject2.getId().toString())
                         .session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Forbidden")));
+                .andExpect(status().isForbidden());
         //valid request
         mvc.perform(MockMvcRequestBuilders.post("/main/deleteModule")
                         .param("moduleId", setUpModule.getId().toString())
                         .param("subjectId", setUpSubject.getId().toString())
                         .session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("saved")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/subject?subjectId=" + setUpSubject.getId()));
         //check if request worked
         assertFalse(moduleRepository.findById(setUpModule.getId()).isPresent());
     }
