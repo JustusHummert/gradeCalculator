@@ -1,8 +1,8 @@
 package com.gradeCalculator.services;
 
-import com.gradeCalculator.Entities.ModuleEntity;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
+import com.gradeCalculator.entities.ModuleEntity;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
 import com.gradeCalculator.repositories.ModuleRepository;
 import com.gradeCalculator.services.exceptions.Forbidden;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +24,8 @@ public class ModuleServiceImplementation implements ModuleService{
      * @return The new module
      */
     @Override
-    public ModuleEntity createModule(String name, double gradingFactor, SubjectEntity subject) throws Forbidden {
-        ModuleEntity module = new ModuleEntity(name, gradingFactor, subject);
+    public ModuleEntity createModule(String name, double gradingFactor, double grade, SubjectEntity subject) throws Forbidden {
+        ModuleEntity module = new ModuleEntity(name, gradingFactor, grade, subject);
         return moduleRepository.save(module);
     }
 

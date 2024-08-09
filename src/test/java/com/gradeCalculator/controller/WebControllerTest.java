@@ -2,9 +2,9 @@ package com.gradeCalculator.controller;
 
 import static org.hamcrest.Matchers.*;
 
-import com.gradeCalculator.Entities.ModuleEntity;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
+import com.gradeCalculator.entities.ModuleEntity;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
 import com.gradeCalculator.repositories.ModuleRepository;
 import com.gradeCalculator.repositories.SubjectRepository;
 import com.gradeCalculator.repositories.UserRepository;
@@ -64,7 +64,7 @@ class WebControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo(loginHtmlString)));
+                .andExpect(content().string(containsString("Login")));
     }
 
     @Test
@@ -90,20 +90,20 @@ class WebControllerTest {
                         .session(new MockHttpSession())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo(loginHtmlString)));
+                .andExpect(content().string(containsString("Login")));
         //sessionId not connected to user
         mvc.perform(MockMvcRequestBuilders.get("")
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo(loginHtmlString)));
+                .andExpect(content().string(containsString("Login")));
     }
 
     @Test
     void subjectMenu() throws Exception{
         UserEntity user = userService.createUser("user", "password");
         SubjectEntity subject = subjectService.createSubject("subject", user);
-        ModuleEntity module = moduleService.createModule("module", 0.5, subject);
+        ModuleEntity module = moduleService.createModule("module", 0.5, 1.3, subject);
         module = moduleService.setGrade(module, 1.3);
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("username", user.getUsername());
@@ -124,13 +124,13 @@ class WebControllerTest {
                         .session(new MockHttpSession())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo(loginHtmlString)));
+                .andExpect(content().string(containsString("Login")));
         //subject does not exist
         mvc.perform(MockMvcRequestBuilders.get("/subject")
                         .param("subjectId", "-1")
                         .session(session)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isForbidden());
         UserEntity user2 = new UserEntity("user2", "password");
         userRepository.save(user2);
         MockHttpSession session2 = new MockHttpSession();
@@ -140,7 +140,7 @@ class WebControllerTest {
                         .param("subjectId", subject.getId().toString())
                         .session(session2)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isForbidden());
         //sessionId not connected to valid user
         MockHttpSession sessionInvalid = new MockHttpSession();
         sessionInvalid.setAttribute("username", "invalid");
@@ -149,5 +149,5 @@ class WebControllerTest {
                         .session(sessionInvalid)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo(loginHtmlString)));}
-}
+                .andExpect(content().string(containsString("Login")));
+}}

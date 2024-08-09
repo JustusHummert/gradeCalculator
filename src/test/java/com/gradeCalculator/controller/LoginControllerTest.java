@@ -1,8 +1,7 @@
 package com.gradeCalculator.controller;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.gradeCalculator.repositories.ModuleRepository;
 import com.gradeCalculator.repositories.SubjectRepository;
@@ -48,33 +47,33 @@ class LoginControllerTest {
         //login account does not exist
         mvc.perform(MockMvcRequestBuilders.post("/login").param("username", "username").param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("failed")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/?wrongUsernameOrPassword"));
         //register the account
         mvc.perform(MockMvcRequestBuilders.post("/register").param("username", "username").param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("saved")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //try to register again this time it already exists
         mvc.perform(MockMvcRequestBuilders.post("/register").param("username", "username").param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("username already exists")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/?usernameTaken"));
         //login successfully
         mvc.perform(MockMvcRequestBuilders.post("/login").param("username", "username").param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(not("failed")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //wrong password
         mvc.perform(MockMvcRequestBuilders.post("/login").param("username", "username").param("password", "wrongpassword")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("failed")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/?wrongUsernameOrPassword"));
         userRepository.deleteById("username");
         mvc.perform(MockMvcRequestBuilders.post("/login").param("username", "username").param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("failed")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/?wrongUsernameOrPassword"));
     }
 
     @Test
@@ -83,8 +82,8 @@ class LoginControllerTest {
         //register
         mvc.perform(MockMvcRequestBuilders.post("/register").param("username", "username").param("password", "password")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("saved")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //Should be at login page
         mvc.perform(MockMvcRequestBuilders.get("")
                 .session(session))
@@ -95,8 +94,8 @@ class LoginControllerTest {
                         .param("username", "username")
                         .param("password", "password")
                         .accept(MediaType.APPLICATION_JSON).session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("logged in")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //Should be at Main page
         mvc.perform(MockMvcRequestBuilders.get("")
                 .session(session))

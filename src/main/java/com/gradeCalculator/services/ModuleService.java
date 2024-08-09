@@ -1,8 +1,8 @@
 package com.gradeCalculator.services;
 
-import com.gradeCalculator.Entities.ModuleEntity;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
+import com.gradeCalculator.entities.ModuleEntity;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
 import com.gradeCalculator.services.exceptions.Forbidden;
 
 /**
@@ -16,7 +16,7 @@ public interface ModuleService {
      * @param subject The subject the module should belong to
      * @return The new module
      */
-    ModuleEntity createModule(String name, double gradingFactor, SubjectEntity subject) throws Forbidden;
+    ModuleEntity createModule(String name, double gradingFactor, double grade, SubjectEntity subject) throws Forbidden;
 
     /**
      * Get the module with the given id
