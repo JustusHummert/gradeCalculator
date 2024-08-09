@@ -97,7 +97,8 @@ public class SubjectServiceImplementation implements SubjectService{
      * @return The total grade of the subject
      */
     private double totalGrade(SubjectEntity subject){
-        return subjectRepository.totalGrade(subject);
+        Double totalGrade = subjectRepository.totalGrade(subject);
+        return totalGrade==null?0:totalGrade;
     }
 
     /**
@@ -106,6 +107,7 @@ public class SubjectServiceImplementation implements SubjectService{
      * @return The total grading factor of the subject
      */
     private double totalGradingFactor(SubjectEntity subject){
-        return subjectRepository.totalGradingFactor(subject);
+        Double totalGradingFactor = subjectRepository.totalGradingFactor(subject);
+        return totalGradingFactor==null?0:totalGradingFactor;
     }
 }

@@ -8,8 +8,8 @@ public interface SubjectRepository extends CrudRepository<SubjectEntity, Integer
     Iterable<SubjectEntity> findByName(String name);
 
     @Query("SELECT SUM(m.grade * m.gradingFactor) FROM ModuleEntity m WHERE m.subject = :subject")
-    double totalGrade(SubjectEntity subject);
+    Double totalGrade(SubjectEntity subject);
 
     @Query("SELECT SUM(m.gradingFactor) FROM ModuleEntity m WHERE m.subject = :subject")
-    double totalGradingFactor(SubjectEntity subject);
+    Double totalGradingFactor(SubjectEntity subject);
 }
