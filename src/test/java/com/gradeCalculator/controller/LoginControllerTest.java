@@ -104,8 +104,8 @@ class LoginControllerTest {
         //logout
         mvc.perform(MockMvcRequestBuilders.post("/logout")
                 .accept(MediaType.APPLICATION_JSON).session(session))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("logged out")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         //Should be at login page
         mvc.perform(MockMvcRequestBuilders.get("")
                 .session(session))
