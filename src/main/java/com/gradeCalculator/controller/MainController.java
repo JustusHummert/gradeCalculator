@@ -1,127 +1,135 @@
 package com.gradeCalculator.controller;
 
-import com.gradeCalculator.Entities.ModuleEntity;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
-import com.gradeCalculator.repositories.ModuleRepository;
-import com.gradeCalculator.repositories.SubjectRepository;
-import com.gradeCalculator.repositories.UserRepository;
+import com.gradeCalculator.entities.ModuleEntity;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
+import com.gradeCalculator.services.ModuleService;
+import com.gradeCalculator.services.SubjectService;
+import com.gradeCalculator.services.UserService;
+import com.gradeCalculator.services.exceptions.Forbidden;
+import com.gradeCalculator.services.exceptions.LoginFailed;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 @RequestMapping(path="/main")
 public class MainController {
     @Autowired
-    private ModuleRepository moduleRepository;
+    UserService userService;
     @Autowired
-    private SubjectRepository subjectRepository;
+    SubjectService subjectService;
     @Autowired
-    private UserRepository userRepository;
+    ModuleService moduleService;
 
-    //sets the user
-    @ModelAttribute("user")
-    public UserEntity getUser(HttpServletRequest request){
-        Object usernameObject = request.getSession().getAttribute("username");
-        if(usernameObject == null)
-            return null;
-        String username =  usernameObject.toString();
-        Optional<UserEntity> optionalUser = userRepository.findById(username);
-        if(optionalUser.isEmpty())
-            return null;
-        return optionalUser.get();
-    }
 
+    /**
+     * Add a new module
+     * @param name The name of the module
+     * @param gradingFactor The grading factor of the module
+     * @param subjectId The id of the subject the module should belong to
+     * @param request The request to get the user from
+     * @return the result of the operation
+     */
     @PostMapping(path="/addModule")
-    public @ResponseBody String addNewModule(@ModelAttribute("user") UserEntity user,@RequestParam String name, @RequestParam double gradingFactor, @RequestParam int subjectId){
-        if(user == null)
-            return "session invalid";
-        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
-        if(optionalSubject.isEmpty())
-            return "subjectId invalid";
-        SubjectEntity subject = optionalSubject.get();
-        if(!user.getSubjects().contains(subject))
-            return "subject does not belong to user";
-        ModuleEntity module = new ModuleEntity(name, gradingFactor);
-        moduleRepository.save(module);
-        subject.getModules().add(module);
-        subjectRepository.save(subject);
-        return "saved";
-    }
-
-    @PostMapping(path="/addGrade")
-    public @ResponseBody String addNewGrade(@ModelAttribute("user") UserEntity user, @RequestParam int moduleId, @RequestParam double grade){
-        if(user == null)
-            return "session invalid";
-        Optional<ModuleEntity> optionalModule = moduleRepository.findById(moduleId);
-        if (optionalModule.isEmpty())
-            return "moduleId invalid";
-        ModuleEntity module = optionalModule.get();
-        //check if Module belongs to user
-        boolean belongs=false;
-        for(SubjectEntity subject : user.getSubjects()){
-            if(subject.getModules().contains(module)){
-                belongs=true;
-                break;
-            }
+    public @ResponseBody String addNewModule(String name, double gradingFactor, double grade, int subjectId,
+                                             HttpServletRequest request){
+        try {
+            UserEntity user = userService.getActiveUser(request.getSession());
+            SubjectEntity subject = subjectService.getSubject(subjectId, user);
+            moduleService.createModule(name, gradingFactor, grade, subject);
+            return "success";
         }
-        if(!belongs)
-            return "module does not belong to user";
-        module.setGrade(grade);
-        moduleRepository.save(module);
-        return "saved";
+        catch (LoginFailed e){
+            return "failed";
+        }
+        catch (Forbidden e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
     }
 
+    /**
+     * Add a new grade to a module
+     * @param moduleId The id of the module
+     * @param grade The grade to add
+     * @param request The request to get the user from
+     * @return the result of the operation
+     */
+    @PostMapping(path="/addGrade")
+    public String addNewGrade(int moduleId, double grade, HttpServletRequest request){
+        try {
+            UserEntity user = userService.getActiveUser(request.getSession());
+            ModuleEntity module = moduleService.getModule(moduleId, user);
+            moduleService.setGrade(module, grade);
+            return "redirect:/subject?subjectId=" + module.getSubject().getId();
+        }
+        catch (LoginFailed e) {
+            return "redirect:/";
+        }
+        catch (Forbidden e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+    }
+
+    /**
+     * Add a new subject
+     * @param name The name of the subject
+     * @param request The request to get the user from
+     * @return the result of the operation
+     */
     @PostMapping(path="/addSubject")
-    public @ResponseBody String addNewSubject(@ModelAttribute("user") UserEntity user, @RequestParam String name){
-        if(user == null)
-            return "session invalid";
-        SubjectEntity subject = new SubjectEntity(name);
-        subjectRepository.save(subject);
-        user.getSubjects().add(subject);
-        userRepository.save(user);
-        return "saved";
+    public String addNewSubject(String name, HttpServletRequest request){
+        try {
+            UserEntity user = userService.getActiveUser(request.getSession());
+            subjectService.createSubject(name, user);
+            return "redirect:/";
+        }
+        catch (LoginFailed e){
+            return "redirect:/";
+        }
     }
 
+    /**
+     * Delete a subject
+     * @param subjectId The id of the subject
+     * @param request The request to get the user from
+     * @return the result of the operation
+     */
     @PostMapping(path = "/deleteSubject")
-    public @ResponseBody String deleteSubject(@ModelAttribute("user") UserEntity user, @RequestParam int subjectId){
-        if(user == null)
-            return "session invalid";
-        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
-        if (optionalSubject.isEmpty())
-            return "subjectId invalid";
-        SubjectEntity subject = optionalSubject.get();
-        if(!user.getSubjects().contains(subject))
-            return "subject does not belong to user";
-        user.getSubjects().remove(subject);
-        userRepository.save(user);
-        subjectRepository.delete(subject);
-        return "saved";
+    public String deleteSubject(int subjectId, HttpServletRequest request){
+        try {
+            UserEntity user = userService.getActiveUser(request.getSession());
+            SubjectEntity subject = subjectService.getSubject(subjectId, user);
+            subjectService.deleteSubject(subject);
+        } catch (Forbidden e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        } catch (LoginFailed e) {
+            return "redirect:/";
+        }
+        return "redirect:/";
     }
 
+    /**
+     * Delete a module
+     * @param moduleId The id of the module
+     * @param request The request to get the user from
+     * @return the result of the operation
+     */
     @PostMapping(path ="/deleteModule")
-    public @ResponseBody String deleteModule(@ModelAttribute("user") UserEntity user, @RequestParam int moduleId, @RequestParam int subjectId){
-        if(user == null)
-            return "session invalid";
-        Optional<ModuleEntity> optionalModule = moduleRepository.findById(moduleId);
-        if(optionalModule.isEmpty())
-            return "moduleId invalid";
-        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
-        if(optionalSubject.isEmpty())
-            return "subjectId invalid";
-        SubjectEntity subject = optionalSubject.get();
-        ModuleEntity module = optionalModule.get();
-        if(!subject.getModules().contains(module))
-            return "module does not belong to subject";
-        if(!user.getSubjects().contains(subject))
-            return "subject does not belong to user";
-        subject.getModules().remove(module);
-        moduleRepository.delete(module);
-        subjectRepository.save(subject);
-        return "saved";
+    public String deleteModule(int moduleId, HttpServletRequest request){
+        try {
+            UserEntity user = userService.getActiveUser(request.getSession());
+            ModuleEntity module = moduleService.getModule(moduleId, user);
+            moduleService.delete(module);
+            return "redirect:/subject?subjectId=" + module.getSubject().getId();
+        } catch (LoginFailed e) {
+            return "redirect:/";
+        }
+        catch (Forbidden e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
     }
 }

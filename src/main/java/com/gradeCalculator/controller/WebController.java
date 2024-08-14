@@ -1,108 +1,69 @@
 package com.gradeCalculator.controller;
-import com.gradeCalculator.Entities.ModuleEntity;
-import com.gradeCalculator.Entities.SubjectEntity;
-import com.gradeCalculator.Entities.UserEntity;
-import com.gradeCalculator.repositories.ModuleRepository;
-import com.gradeCalculator.repositories.SubjectRepository;
-import com.gradeCalculator.repositories.UserRepository;
+import com.gradeCalculator.entities.SubjectEntity;
+import com.gradeCalculator.entities.UserEntity;
+import com.gradeCalculator.services.SubjectService;
+import com.gradeCalculator.services.UserService;
+import com.gradeCalculator.services.exceptions.Forbidden;
+import com.gradeCalculator.services.exceptions.LoginFailed;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.Optional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class WebController {
     @Autowired
-    private ModuleRepository moduleRepository;
+    UserService userService;
     @Autowired
-    private SubjectRepository subjectRepository;
-    @Autowired
-    private UserRepository userRepository;
+    SubjectService subjectService;
 
-    //sets the user
-    @ModelAttribute("user")
-    public UserEntity getUser(HttpServletRequest request){
-        Object usernameObject = request.getSession().getAttribute("username");
-        if(usernameObject == null)
-            return null;
-        String username =  usernameObject.toString();
-        Optional<UserEntity> optionalUser = userRepository.findById(username);
-        if(optionalUser.isEmpty())
-            return null;
-        return optionalUser.get();
-    }
-
-    //directs user to the main.html template or the login.html template
+    /**
+     * Directs user to the main.html template or the login.html template
+     * If the user is logged in, the main.html template is shown
+     * If the user is not logged in, the login.html template is shown
+     * @param model The model to add attributes to
+     * @param request The request to get the user from
+     * @return The template to direct the user to
+     */
     @GetMapping("")
-    public String mainMenu(@ModelAttribute("user") UserEntity user, Model model){
-        //if the session is invalid or the username does not exist go to login page
-        if(user == null)
+    public String mainMenu(Model model, HttpServletRequest request){
+        try {
+            UserEntity user = userService.getActiveUser(request.getSession());
+            model.addAttribute("subjects", user.getSubjects());
+            return "main";
+        } catch (LoginFailed e) {
             return "login";
-        model.addAttribute("subjects", user.getSubjects());
-        return "main";
+        }
     }
 
-    //Directs user to the subject.html template
+    /**
+     * Directs user to the subject.html template
+     * If the user is logged in, the subject.html template is shown
+     * If the user is not logged in, the login.html template is shown
+     * If the user does not have access to the subject, the login.html template is shown
+     * @param subjectId The id of the subject
+     * @param model The model to add attributes to
+     * @param request The request to get the user from
+     * @return The template to direct the user to
+     */
     @GetMapping("/subject")
-    public String subjectMenu(@ModelAttribute("user") UserEntity user, @RequestParam int subjectId, Model model, HttpServletRequest request){
-        //if the session is invalid or the username does not exist go to login page
-        if(user == null)
+    public String subjectMenu(int subjectId, Model model, HttpServletRequest request){
+        try {
+            UserEntity user = userService.getActiveUser(request.getSession());
+            SubjectEntity subject = subjectService.getSubject(subjectId, user);
+            model.addAttribute("subject", subject);
+            model.addAttribute("averageGrade", subjectService.averageGrade(subject));
+            model.addAttribute("bestPossibleGrade", subjectService.bestPossibleGrade(subject));
+            model.addAttribute("worstPossibleGrade", subjectService.worstPossibleGrade(subject));
+            return "subject";
+        } catch (LoginFailed e){
             return "login";
-        //if the subject does not exist redirect to main page
-        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
-        if(optionalSubject.isEmpty())
-            return "redirect:/";
-        SubjectEntity subject = optionalSubject.get();
-        //check if user is allowed to access subject else redirect to main page
-        if(!user.getSubjects().contains(subject))
-            return "redirect:/";
-        model.addAttribute("subject", subject);
-        model.addAttribute("averageGrade", averageGrade(subject));
-        model.addAttribute("bestPossibleGrade", bestPossibleGrade(subject));
-        model.addAttribute("worstPossibleGrade", worstPossibleGrade(subject));
-        return "subject";
-    }
-
-    //grades added together multiplied by grading factor
-    private double totalGrade(SubjectEntity subject){
-        double grade=0;
-        for(ModuleEntity module : subject.getModules()){
-            if(module.getGrade()>0 && module.getGrade()<5)
-                grade+= module.getGrade()* module.getGradingFactor();
+        } catch (Forbidden e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        return grade;
     }
-
-    //grading factor added together
-    private double totalGradingFactor(SubjectEntity subject){
-        double total=0;
-        for(ModuleEntity module : subject.getModules()){
-            if(module.getGrade()>0 && module.getGrade()<5)
-                total+= module.getGradingFactor();
-        }
-        return total;
-    }
-
-    //Average grade weighted by grading Factor
-    private double averageGrade(SubjectEntity subject){
-        return totalGrade(subject)/totalGradingFactor(subject);
-    }
-
-    //Grade if the rest of the modules are 1.0
-    private double bestPossibleGrade(SubjectEntity subject){
-        return totalGrade(subject)+(1-totalGradingFactor(subject));
-    }
-
-    //Grade if the rest of the modules are 4.0
-    private double worstPossibleGrade(SubjectEntity subject){
-        return totalGrade(subject)+(1-totalGradingFactor(subject))*4;
-    }
-
-
 
 }

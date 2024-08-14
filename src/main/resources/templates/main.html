@@ -1,86 +1,31 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Main</title>
 </head>
 <body>
     <!-- Subjects-->
     <p>Subjects</p>
     <p>
-      <form id="subjectForm">
-        <input type="text" id="subjectName" aria-label="subjectName" />
-        <button type="button" id="addSubjectBtn">add</button>
+      <form method="POST" action="/main/addSubject">
+        <input type="text" name="name" id="subjectName">
+        <input type="submit" value="add" id="addSubjectBtn">
       </form>
     </p>
     <table id= subjectTable></table>
         <tbody>
             <tr th:each="subject: ${subjects}">
               <p>
-                <td th:text="${subject.name}"></td>
-                <td><button type="button" id="selectBtn" class="btn select-Subject"
-                th:data-id="${subject.id}">select</button></td>
-                <td><button type="button" id="deleteSubjectBtn" class="btn delete-Subject"
-                th:data-id="${subject.id}">delete</button></td>
+                <form method="GET" th:action="@{/subject?subjectId=${subject.id}}">
+                  <td th:text="${subject.name}"></td>
+                  <input type="hidden" name="subjectId" th:value="${subject.id}">
+                  <input type="submit" value="select">
+                  <input type="submit" value="delete" formaction="/main/deleteSubject" formmethod="post">
+                </form>
               </p>
             </tr>
         </tbody>
     </table>
     <div th:replace="~{logoutButton}"></div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script>
-$("#addSubjectBtn").click(function () {
-       let subjectName = $("#subjectName").val();
-       $.ajax({
-         url: "/main/addSubject",
-         method: "post",
-         data: {
-            name: subjectName
-         },
-         dataType: "text",
-       })
-         .done(function (data) {
-            console.info(data, subjectName);
-            if(data=="saved")
-               location.reload();
-         })
-         .fail(function (jqXHR, textStatus, errorThrown) {
-           console.error(jqXHR, textStatus, errorThrown);
-         });
-
-});  
-$(".delete-Subject").click(function () {
-       let id = $(this).data("id");
-       $.ajax({
-         url: "/main/deleteSubject",
-         method: "post",
-         data: {
-            subjectId: id
-         },
-         dataType: "text",
-       })
-         .done(function (data) {
-            console.info(data, id);
-            if(data=="saved")
-               location.reload();
-         })
-         .fail(function (jqXHR, textStatus, errorThrown) {
-           console.error(jqXHR, textStatus, errorThrown);
-         });
-
-});
-$(".select-Subject").click(function () {
-        let id = $(this).data("id");
-        console.info(id);
-        window.location.href="/subject?subjectId="+id;
-});  
-//make button react to Enter
-document.getElementById("subjectName").addEventListener("keypress", function(event){
-  if(event.key === "Enter") {
-    event.preventDefault();
-    document.getElementById("addSubjectBtn").click();
-  }
-});
-</script>
 </body>
 </html>
