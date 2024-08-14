@@ -22,6 +22,6 @@ If he selects one he switches to a specific subject page.
 
 ### Subject page
 On the subject page he can add and delete modules.
-Modules need to have a grading factor that represents the portion of the total grade.
-After adding a module the user can set a grade.
+Modules need to have a grading factor that represents the portion of the total grade aswell as a grade.
+After adding a module the user change the grade.
 He can then see his average grade and what the best and worst reachable grades are. 
