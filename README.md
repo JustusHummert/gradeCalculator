@@ -6,7 +6,7 @@ Allows the user to enter his grades, save them and see what the average, best or
 - Requests are send to the Backend using the jQuery library.
 - Backend consists of a Spring Boot Application.
 - Backend communicates with the database using JPA.
-- MySQL database.
+- H2 database.
 
 ## Features
 ### Login/Register
